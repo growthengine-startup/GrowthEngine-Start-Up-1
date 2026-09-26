@@ -54,6 +54,7 @@ fun InventoryScreen(
             )
         },
         containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.testTag("inventory_screen")
     ) { padding ->
         Column(

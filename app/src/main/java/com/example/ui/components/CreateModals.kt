@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.ui.MainViewModel
 import com.example.ui.theme.*
 
@@ -42,12 +43,21 @@ fun AddProductDialog(
     var minReorder by remember { mutableStateOf("10") }
     var supplier by remember { mutableStateOf("SKF Bearings India Ltd") }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().padding(8.dp).testTag("add_product_dialog")
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 10.dp)
+                .testTag("add_product_dialog")
         ) {
             Column(
                 modifier = Modifier
@@ -237,12 +247,21 @@ fun AddExpenseDialog(
     val amount = amountText.toDoubleOrNull() ?: 0.0
     val gstAmount = if (isGstClaimable) amount * 0.18 else 0.0
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().padding(10.dp).testTag("add_expense_dialog")
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 10.dp)
+                .testTag("add_expense_dialog")
         ) {
             Column(
                 modifier = Modifier
@@ -351,12 +370,21 @@ fun NewBatchDialog(
     var rawMaterials by remember { mutableStateOf("Chrome Shaft 25mm (40m), Seal Kits (20 sets)") }
     var costPerUnitText by remember { mutableStateOf("13800") }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().padding(10.dp).testTag("new_batch_dialog")
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 10.dp)
+                .testTag("new_batch_dialog")
         ) {
             Column(
                 modifier = Modifier

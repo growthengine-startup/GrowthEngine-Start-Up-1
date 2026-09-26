@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.BillingReceipt
 import com.example.ui.theme.*
 import java.text.NumberFormat
@@ -38,14 +39,20 @@ fun SubscriptionReceiptDialog(
     val currencyFormatter = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
     val dateFormatter = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 520.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
                 .testTag("subscription_receipt_dialog")
         ) {
             Column(

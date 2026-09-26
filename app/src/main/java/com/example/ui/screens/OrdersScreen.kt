@@ -108,7 +108,8 @@ fun OrdersScreen(
                 modifier = Modifier.testTag("fab_create_order")
             )
         },
-        containerColor = BackgroundWhite
+        containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Column(
             modifier = Modifier

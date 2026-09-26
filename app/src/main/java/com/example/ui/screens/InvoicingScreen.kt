@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.InvoiceEntity
@@ -76,6 +77,7 @@ fun InvoicingScreen(
             )
         },
         containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.testTag("invoicing_screen")
     ) { padding ->
         Column(
@@ -96,7 +98,7 @@ fun InvoicingScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
                                 text = "GST BILLING",
                                 fontSize = 10.sp,
@@ -109,22 +111,25 @@ fun InvoicingScreen(
                                 fontSize = 20.sp,
                                 fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold,
-                                color = TextPrimary
+                                color = TextPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
 
                         Surface(
                             color = SurfaceSubtle,
                             shape = RoundedCornerShape(8.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                            modifier = Modifier.padding(start = 8.dp)
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                Text("Invoiced:", fontSize = 11.sp, color = TextSecondary)
-                                Text("₹${MainViewModel.formatCurrencyPlain(totalSales)}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
+                                Text("Invoiced:", fontSize = 10.sp, color = TextSecondary)
+                                Text("₹${MainViewModel.formatCurrencyPlain(totalSales)}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DarkInk)
                             }
                         }
                     }

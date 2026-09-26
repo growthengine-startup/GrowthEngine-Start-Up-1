@@ -80,6 +80,7 @@ fun EmployeesScreen(
             )
         },
         containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.testTag("employees_screen")
     ) { paddingValues ->
         Column(

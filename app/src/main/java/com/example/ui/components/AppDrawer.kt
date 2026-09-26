@@ -48,7 +48,8 @@ fun AppDrawerContent(
         drawerContainerColor = BackgroundWhite,
         drawerContentColor = TextPrimary,
         modifier = Modifier
-            .width(310.dp)
+            .fillMaxWidth(0.85f)
+            .widthIn(min = 260.dp, max = 320.dp)
             .fillMaxHeight()
             .testTag("app_drawer")
     ) {
@@ -56,6 +57,7 @@ fun AppDrawerContent(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
+                .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {

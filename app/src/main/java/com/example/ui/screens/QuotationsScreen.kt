@@ -76,6 +76,7 @@ fun QuotationsScreen(
             )
         },
         containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.testTag("quotations_screen")
     ) { paddingValues ->
         Column(

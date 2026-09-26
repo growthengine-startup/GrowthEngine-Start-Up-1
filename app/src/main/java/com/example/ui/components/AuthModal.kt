@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.ui.theme.*
 
 @Composable
@@ -69,14 +70,20 @@ fun AuthModal(
     var gstinText by remember { mutableStateOf("33AAACD9821K1Z4") }
     var showGoogleAccountPicker by remember { mutableStateOf(false) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 480.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
                 .testTag("auth_modal")
         ) {
             Column(

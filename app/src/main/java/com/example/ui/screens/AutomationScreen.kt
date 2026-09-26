@@ -107,6 +107,7 @@ fun AutomationScreen(
             )
         },
         containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.testTag("automation_screen")
     ) { paddingValues ->
         Column(

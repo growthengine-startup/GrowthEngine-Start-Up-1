@@ -91,7 +91,8 @@ fun PurchasesScreen(
                 text = { Text("Add Purchase Bill", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_add_purchase")
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         Column(
             modifier = Modifier

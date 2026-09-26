@@ -70,8 +70,11 @@ fun RazorpayCheckoutModal(
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
-                .fillMaxWidth(0.94f)
-                .padding(vertical = 20.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 520.dp)
+                .heightIn(max = 700.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
                 .testTag("razorpay_checkout_modal")
         ) {
             Column(

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.PartyEntity
 import com.example.data.model.ProductEntity
 import com.example.ui.MainViewModel
@@ -39,20 +40,27 @@ fun WhatsAppReminderDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 500.dp)
+                .heightIn(max = 640.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
                 .testTag("whatsapp_reminder_dialog")
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -168,14 +176,20 @@ fun CreateInvoiceDialog(
     val totalTax = subtotal * 0.18
     val grandTotal = subtotal + totalTax
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 560.dp)
+                .heightIn(max = 700.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
                 .testTag("create_invoice_dialog")
         ) {
             Column(
@@ -347,17 +361,27 @@ fun RecordPaymentDialog(
     var refNo by remember { mutableStateOf("UPI/${(100000..999999).random()}") }
     var notes by remember { mutableStateOf("Payment received against outstanding ledger balance.") }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().padding(12.dp).testTag("record_payment_dialog")
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 520.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
+                .testTag("record_payment_dialog")
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(18.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -450,14 +474,28 @@ fun StockAdjustDialog(
 ) {
     var stockText by remember { mutableStateOf(product.currentStock.toInt().toString()) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().padding(14.dp).testTag("stock_adjust_dialog")
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 480.dp)
+                .heightIn(max = 520.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
+                .testTag("stock_adjust_dialog")
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Text("Stock Inward / Adjustment", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                 Text(product.name, fontSize = 12.sp, color = TextSecondary)
 
@@ -518,12 +556,21 @@ fun AddCustomerDialog(
     var creditLimitText by remember { mutableStateOf("500000") }
     var creditDaysText by remember { mutableStateOf("30") }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().padding(8.dp).testTag("add_customer_dialog")
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 700.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
+                .testTag("add_customer_dialog")
         ) {
             Column(
                 modifier = Modifier

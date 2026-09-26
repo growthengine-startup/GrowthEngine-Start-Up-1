@@ -45,6 +45,7 @@ fun ExpensesScreen(
             )
         },
         containerColor = BackgroundWhite,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier.testTag("expenses_screen")
     ) { padding ->
         Column(

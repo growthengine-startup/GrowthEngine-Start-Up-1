@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.*
 import com.example.supabase.SupabaseSchema
 import com.example.ui.MainViewModel
@@ -43,13 +44,19 @@ fun EditBusinessPlanDialog(
     var suspensionReason by remember { mutableStateOf("Overdue billing or TOS compliance review") }
     var aiQuotaText by remember { mutableStateOf(business.aiMonthlyQuota.toString()) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 700.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
                 .testTag("dialog_edit_business_plan")
         ) {
             Column(
@@ -218,13 +225,25 @@ fun AdjustAiQuotaDialog(
     var bonusInput by remember { mutableStateOf("50000") }
     var isThrottled by remember { mutableStateOf(false) }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 500.dp)
+                .heightIn(max = 640.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Text(
                     text = "AI Quota & Token Metering",
                     fontSize = 18.sp,
@@ -302,11 +321,19 @@ fun BroadcastNotificationDialog(
     var audience by remember { mutableStateOf("ALL_USERS") }
     var channel by remember { mutableStateOf("IN_APP_PUSH") }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -400,11 +427,19 @@ fun TransactionDetailDialog(
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -486,11 +521,19 @@ fun SupportTicketDialog(
     var replyText by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 540.dp)
+                .heightIn(max = 680.dp)
+                .imePadding()
+                .padding(vertical = 12.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -565,14 +608,18 @@ fun SupabaseSqlViewerDialog(
 
     val titles = listOf("Complete SQL Script", "Auth & Storage Setup", "Edge Functions & Razorpay")
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.88f)
-                .padding(4.dp)
+                .fillMaxWidth(0.95f)
+                .widthIn(max = 600.dp)
+                .fillMaxHeight(0.9f)
+                .padding(vertical = 10.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(

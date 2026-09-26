@@ -103,14 +103,14 @@ fun AppTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Left: Hamburger Menu & Logo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
                 modifier = Modifier.weight(1f, fill = false)
             ) {
                 IconButton(
@@ -132,8 +132,8 @@ fun AppTopBar(
             // Right: Cloud Sync, Plan Pill & Interactive Profile Avatar Menu
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.padding(start = 4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.padding(start = 2.dp)
             ) {
                 // Cloud Sync Quick Indicator
                 Surface(
@@ -344,7 +344,7 @@ fun AppBottomNav(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .clickable { onTabSelected(tab) }
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .padding(horizontal = 6.dp, vertical = 4.dp)
                         .testTag("nav_tab_${tab.name.lowercase()}")
                 ) {
                     Icon(
@@ -358,7 +358,8 @@ fun AppBottomNav(
                         text = label,
                         fontSize = 11.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) GrowthEngineGoldDark else TextSecondary
+                        color = if (isSelected) GrowthEngineGoldDark else TextSecondary,
+                        maxLines = 1
                     )
                 }
             }
@@ -368,7 +369,7 @@ fun AppBottomNav(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .clickable { onOpenDrawer() }
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .padding(horizontal = 6.dp, vertical = 4.dp)
                     .testTag("nav_tab_menu")
             ) {
                 Icon(
@@ -382,7 +383,8 @@ fun AppBottomNav(
                     text = "Menu",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,
-                    color = TextSecondary
+                    color = TextSecondary,
+                    maxLines = 1
                 )
             }
         }
