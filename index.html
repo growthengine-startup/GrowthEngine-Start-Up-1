@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrowthEngine ERP & POS | Next-Gen MSME Business Platform</title>
+  <meta name="description" content="All-in-one ERP, GST Invoicing, Thermal POS, Multi-Godown Inventory, and AI Business Copilot for Indian MSMEs." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandNavy: '#0A192F',
+            brandNavyDark: '#050D1A',
+            brandGold: '#D4AF37',
+            brandGoldLight: '#F3E5AB',
+            brandGoldDark: '#997A15',
+            brandGreen: '#1B8A5A',
+            brandSurface: '#F8F9FC',
+            brandCard: '#FFFFFF',
+            brandBorder: '#E2E8F0',
+            brandDark: '#1E293B',
+            brandSubtle: '#64748B'
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .gradient-hero {
+      background: radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.15) 0%, rgba(10, 25, 47, 1) 70%);
+    }
+    .gold-glow {
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
+    }
+    .glass-nav {
+      background: rgba(10, 25, 47, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-brandSurface text-brandDark font-sans antialiased selection:bg-brandGold selection:text-brandNavyDark">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brandGold to-brandGoldDark flex items-center justify-center shadow-md">
+          <svg class="w-6 h-6 text-brandNavy fill-current" viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-white text-xl font-bold tracking-tight">Growth</span>
+            <span class="text-brandGold text-xl font-serif italic font-semibold">Engine</span>
+            <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-brandGold/20 text-brandGold border border-brandGold/40 ml-1">ERP & POS</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Next-Gen MSME Operating System</p>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+        <a href="#features" class="hover:text-brandGold transition-colors">Features</a>
+        <a href="#modules" class="hover:text-brandGold transition-colors">ERP Modules</a>
+        <a href="#pos" class="hover:text-brandGold transition-colors">Thermal POS</a>
+        <a href="#supabase" class="hover:text-brandGold transition-colors">Cloud Sync</a>
+        <a href="#admin" class="hover:text-brandGold transition-colors flex items-center gap-1.5 text-brandGoldLight">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+          Admin Portal
+        </a>
+      </nav>
+
+      <div class="flex items-center space-x-3">
+        <a href="#download" class="px-4 py-2 text-xs sm:text-sm font-semibold text-brandNavy bg-brandGold hover:bg-brandGoldLight rounded-lg transition-all shadow-md hover:shadow-brandGold/30">
+          Get Android App
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="gradient-hero bg-brandNavy text-white pt-36 pb-24 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+    <div class="max-w-6xl mx-auto text-center">
+      <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-brandGold/40 text-brandGoldLight text-xs font-semibold uppercase tracking-wider mb-6">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Supabase PostgreSQL + Room Real-Time Sync</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight max-w-4xl mx-auto">
+        The Complete Business Operating System for <span class="text-transparent bg-clip-text bg-gradient-to-r from-brandGold to-amber-200">Modern MSMEs</span>
+      </h1>
+
+      <p class="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+        GST Invoicing, Thermal POS Billing with dynamic UPI QR, Multi-Godown Inventory, Bill of Materials (BOM) Manufacturing, and Gemini AI Business Intelligence.
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#download" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brandGold to-amber-400 text-brandNavy font-bold rounded-xl shadow-lg gold-glow hover:scale-105 transition-all text-center flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993s-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993s-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.414 13.8533 8.1 12 8.1s-3.5902.314-5.1368.8507L4.841 5.4477a.416.416 0 00-.5677-.1521.416.416 0 00-.152.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/></svg>
+          Download Android APK
+        </a>
+        <a href="#admin" class="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-xl border border-white/20 transition-all text-center flex items-center justify-center gap-2">
+          <svg class="w-5 h-5 text-brandGold" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path></svg>
+          Super Admin Console
+        </a>
+      </div>
+
+      <!-- APP TELEMETRY STATS -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div class="text-2xl sm:text-3xl font-bold text-brandGold">100%</div>
+          <div class="text-xs text-slate-400 mt-1">GST & E-Way Compliant</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div class="text-2xl sm:text-3xl font-bold text-emerald-400">Offline-First</div>
+          <div class="text-xs text-slate-400 mt-1">Zero Downtime Room DB</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div class="text-2xl sm:text-3xl font-bold text-sky-400">PostgreSQL</div>
+          <div class="text-xs text-slate-400 mt-1">Supabase Real-time Cloud</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+          <div class="text-2xl sm:text-3xl font-bold text-purple-400">Gemini 2.5</div>
+          <div class="text-xs text-slate-400 mt-1">AI Copilot & OCR Munim</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CORE FEATURES GRID -->
+  <section id="features" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-brandGoldDark">Comprehensive ERP Suite</h2>
+      <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-brandNavy">Engineered for Indian Enterprises</p>
+      <p class="mt-4 text-slate-600">Eliminate fragmented software. Run invoicing, inventory, payroll, khata, and manufacturing from one unified app.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Card 1 -->
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-brandBorder hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold text-brandNavy mb-2">GST Invoicing & E-Way Bills</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">Tax Invoices, Proformas, Credit/Debit Notes, and dynamic HSN summaries with automated CGST/SGST/IGST calculations.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-brandBorder hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold text-brandNavy mb-2">High-Speed Thermal POS</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">Scan barcodes or quick-search products. Generate instant dynamic Bharat UPI QR codes on 58mm/80mm ESC-POS receipts.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white p-8 rounded-2xl shadow-sm border border-brandBorder hover:shadow-md transition-shadow">
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-6">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        </div>
+        <h3 class="text-xl font-bold text-brandNavy mb-2">Multi-Godown & Manufacturing</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">Inter-godown stock transfers, reorder level alerts, and Bill of Materials (BOM) cost tracking for raw materials and finished goods.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN PORTAL HIGHLIGHT -->
+  <section id="admin" class="py-20 bg-brandNavy text-white px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brandGold/20 border border-brandGold text-brandGold text-xs font-bold uppercase tracking-wider mb-4">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            <span>Dedicated Super Admin Application</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
+            Centralized Tenant & Platform Governance
+          </h2>
+
+          <p class="mt-4 text-slate-300 text-sm sm:text-base leading-relaxed">
+            Restricted exclusively to authorized administrators (<span class="text-brandGold font-mono font-semibold">prajindezaa142@gmail.com</span>) with PostgreSQL Row-Level Security (RLS) enforcement.
+          </p>
+
+          <div class="mt-8 space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">✓</div>
+              <div>
+                <strong class="text-white text-sm">Tenant & Business Account Management:</strong>
+                <p class="text-xs text-slate-400">Upgrade plans, adjust quota limits, and manage multi-tenant access.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">✓</div>
+              <div>
+                <strong class="text-white text-sm">Razorpay Payment Audits & Instant Refunds:</strong>
+                <p class="text-xs text-slate-400">Live order ID tracking, subscription renewals, and 1-tap refunds.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">✓</div>
+              <div>
+                <strong class="text-white text-sm">Gemini AI Token Metering:</strong>
+                <p class="text-xs text-slate-400">Monitor token consumption per business, override quotas, and set rate limits.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-brandNavyDark p-6 sm:p-8 rounded-2xl border border-slate-700 shadow-2xl">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-red-500"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            </div>
+            <span class="text-xs font-mono text-slate-400">AdminActivity.kt (Restricted)</span>
+          </div>
+          <div class="mt-6 space-y-4 font-mono text-xs text-slate-300">
+            <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
+              <span class="text-emerald-400">AUTH_STATUS:</span> 200 OK (Super Admin Session Active)<br/>
+              <span class="text-slate-400">ADMIN_USER:</span> prajindezaa142@gmail.com<br/>
+              <span class="text-slate-400">RLS_POLICY:</span> Enforced (Supabase PostgreSQL)
+            </div>
+            <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
+              <span class="text-brandGold">LIVE_MRR:</span> ₹1,84,200/month (Active Subscriptions)<br/>
+              <span class="text-slate-400">ACTIVE_TENANTS:</span> 1,280 MSME Businesses<br/>
+              <span class="text-slate-400">AI_TOKENS_METERED:</span> 18.45M / 50M
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD / APP INSTRUCTIONS -->
+  <section id="download" class="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+    <div class="bg-gradient-to-br from-brandNavy to-slate-900 text-white p-10 sm:p-14 rounded-3xl shadow-xl border border-slate-800">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Deploy GrowthEngine on Android</h2>
+      <p class="text-slate-300 max-w-xl mx-auto text-sm sm:text-base mb-8">
+        Export the native Android codebase from Google AI Studio, generate release APKs or Android App Bundles (AAB), and deploy directly to your device or Google Play Store.
+      </p>
+
+      <div class="flex flex-col sm:flex-row justify-center items-center gap-4 text-sm font-semibold">
+        <div class="px-6 py-3 bg-white/10 rounded-xl border border-white/20 text-slate-200">
+          Package ID: <code class="text-brandGold font-mono">com.aistudio.growthengine</code>
+        </div>
+        <div class="px-6 py-3 bg-white/10 rounded-xl border border-white/20 text-slate-200">
+          Target SDK: <code class="text-emerald-400 font-mono">Android 14+ (API 34)</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-brandNavyDark text-slate-400 py-12 px-4 border-t border-slate-800 text-center text-xs">
+    <p class="text-slate-300 font-semibold mb-2">GrowthEngine ERP Platform • Designed for Bharat MSMEs</p>
+    <p>© 2026 GrowthEngine Technologies. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
