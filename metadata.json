@@ -1,0 +1,6 @@
+{
+  "name": "GrowthEngine",
+  "description": "AI-Powered Business Operating System for Indian MSMEs with GST billing, inventory, POS, cashflow ledger, and business copilot.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
