@@ -1,7 +1,10 @@
 {
-  "version": 2,
-  "public": true,
+  "cleanUrls": true,
   "rewrites": [
+    {
+      "source": "/app-debug.apk",
+      "destination": "/app-debug.apk"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
