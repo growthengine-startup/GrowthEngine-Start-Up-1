@@ -1,9 +1,11 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,8 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,24 +34,17 @@ fun ExpensesScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = onAddExpenseClick,
-                containerColor = ImperialNavy,
-                contentColor = RoyalTeakGoldLight,
-                shape = RoundedCornerShape(16.dp),
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
+                shape = RoundedCornerShape(12.dp),
+                icon = { Icon(Icons.Default.Add, contentDescription = "Log Expense") },
+                text = { Text("Log Expense Voucher", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_add_expense")
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Log Expense")
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Log Expense", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-            }
+            )
         },
-        containerColor = WarmIvoryBackground,
+        containerColor = BackgroundWhite,
         modifier = Modifier.testTag("expenses_screen")
     ) { padding ->
         Column(
@@ -57,51 +54,80 @@ fun ExpensesScreen(
         ) {
             // Header summary
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "OPERATING EXPENDITURE",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextSecondaryMuted,
-                            letterSpacing = 0.5.sp
-                        )
-                        Text(
-                            text = "₹ ${MainViewModel.formatCurrencyPlain(totalExpense)}",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ImperialNavy
-                        )
-                    }
-
-                    Column(horizontalAlignment = Alignment.End) {
-                        Surface(
-                            color = ForestEmeraldContainer,
-                            shape = RoundedCornerShape(4.dp)
-                        ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
                             Text(
-                                text = "ITC CLAIMABLE: ₹${MainViewModel.formatCurrencyPlain(totalClaimableGst)}",
-                                color = ForestEmerald,
+                                text = "OPERATING VOUCHERS",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = "Expenses & Petty Cash",
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
                         }
-                        Text(
-                            text = "Deductible in GSTR-3B",
-                            fontSize = 9.sp,
-                            color = TextSecondaryMuted
-                        )
+
+                        Surface(
+                            color = SuccessGreenContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen.copy(alpha = 0.3f))
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                Text("ITC Claimable", fontSize = 9.sp, color = TextSecondary)
+                                Text(
+                                    "₹${MainViewModel.formatCurrencyPlain(totalClaimableGst)}",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SuccessGreenDark
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text("Total Operating Expenditure", fontSize = 11.sp, color = TextSecondary)
+                                Text(
+                                    "₹${MainViewModel.formatCurrencyPlain(totalExpense)}",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = DarkInk
+                                )
+                            }
+                            Text("${expenses.size} Vouchers", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
+                        }
                     }
                 }
             }
@@ -110,15 +136,47 @@ fun ExpensesScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 14.dp),
-                contentPadding = PaddingValues(top = 10.dp, bottom = 80.dp),
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(top = 12.dp, bottom = 90.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(expenses) { expense ->
+                if (expenses.isEmpty()) {
+                    item {
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape)
+                                        .background(SurfaceWhite)
+                                        .border(1.dp, BorderSubtle, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Receipt, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(24.dp))
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text("No Expenses Logged", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextPrimary)
+                                Text("Record daily office rent, salaries, freight, electricity, and raw material purchase bills.", fontSize = 12.sp, color = TextSecondary)
+                            }
+                        }
+                    }
+                }
+
+                items(expenses, key = { it.id }) { expense ->
                     Card(
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.fillMaxWidth().testTag("expense_card_${expense.id}")
                     ) {
                         Row(
@@ -133,41 +191,42 @@ fun ExpensesScreen(
                                     text = expense.title,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimaryDark
+                                    color = TextPrimary
                                 )
                                 Text(
                                     text = "Category: ${expense.category} • Via ${expense.paymentMode}",
-                                    fontSize = 10.sp,
-                                    color = TextSecondaryMuted
+                                    fontSize = 11.sp,
+                                    color = TextSecondary
                                 )
                                 if (!expense.vendorName.isNullOrBlank()) {
                                     Text(
                                         text = "Vendor: ${expense.vendorName}",
                                         fontSize = 10.sp,
-                                        color = TextSecondaryMuted
+                                        color = TextTertiary
                                     )
                                 }
-                                Text(
-                                    text = "Date: ${MainViewModel.formatDate(expense.dateEpoch)}",
-                                    fontSize = 9.sp,
-                                    color = TextSecondaryMuted
-                                )
                             }
 
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    text = "₹ ${MainViewModel.formatCurrencyPlain(expense.amount)}",
+                                    text = "₹${MainViewModel.formatCurrencyPlain(expense.amount)}",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ImperialNavy
+                                    color = DarkInk
                                 )
                                 if (expense.isGstClaimable) {
-                                    Text(
-                                        text = "+ ITC: ₹${MainViewModel.formatCurrencyPlain(expense.gstAmount)}",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = ForestEmerald
-                                    )
+                                    Surface(
+                                        color = SuccessGreenContainer,
+                                        shape = RoundedCornerShape(4.dp)
+                                    ) {
+                                        Text(
+                                            text = "ITC: ₹${MainViewModel.formatCurrencyPlain(expense.gstAmount)}",
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = SuccessGreenDark,
+                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

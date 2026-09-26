@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -42,7 +45,8 @@ fun AddProductDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().padding(8.dp).testTag("add_product_dialog")
         ) {
             Column(
@@ -56,8 +60,8 @@ fun AddProductDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Add Inventory SKU", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null) }
+                    Text("Add Inventory SKU", fontSize = 16.sp, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, color = TextPrimary)
+                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null, tint = TextSecondary) }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -67,7 +71,11 @@ fun AddProductDialog(
                     onValueChange = { name = it },
                     label = { Text("Product / Component Name") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -78,14 +86,22 @@ fun AddProductDialog(
                         onValueChange = { sku = it },
                         label = { Text("SKU Code") },
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = hsn,
                         onValueChange = { hsn = it },
                         label = { Text("HSN Code") },
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
 
@@ -97,14 +113,22 @@ fun AddProductDialog(
                         onValueChange = { category = it },
                         label = { Text("Category") },
                         modifier = Modifier.weight(1.2f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = unit,
                         onValueChange = { unit = it },
                         label = { Text("Unit (Pcs/Kg/Mtr)") },
                         modifier = Modifier.weight(0.8f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
 
@@ -117,7 +141,11 @@ fun AddProductDialog(
                         label = { Text("Wholesale Rate (₹)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = purchasePrice,
@@ -125,7 +153,11 @@ fun AddProductDialog(
                         label = { Text("Purchase Price (₹)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
 
@@ -138,7 +170,11 @@ fun AddProductDialog(
                         label = { Text("Initial Stock") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = minReorder,
@@ -146,7 +182,11 @@ fun AddProductDialog(
                         label = { Text("Reorder Trigger") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
 
@@ -171,11 +211,11 @@ fun AddProductDialog(
                             )
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                    colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold, contentColor = DarkInk),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().testTag("confirm_add_product")
                 ) {
-                    Text("Register Item to Catalog", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Register Item to Catalog", color = DarkInk, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -200,7 +240,8 @@ fun AddExpenseDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().padding(10.dp).testTag("add_expense_dialog")
         ) {
             Column(
@@ -214,8 +255,8 @@ fun AddExpenseDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Log Enterprise Expense", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null) }
+                    Text("Log Enterprise Expense", fontSize = 16.sp, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, color = TextPrimary)
+                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null, tint = TextSecondary) }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -226,7 +267,11 @@ fun AddExpenseDialog(
                     label = { Text("Expense Title / Voucher") },
                     placeholder = { Text("e.g. CNC Coolant Refill") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -237,7 +282,11 @@ fun AddExpenseDialog(
                     label = { Text("Amount (₹)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -247,7 +296,11 @@ fun AddExpenseDialog(
                     onValueChange = { vendor = it },
                     label = { Text("Vendor / Service Provider") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -258,13 +311,13 @@ fun AddExpenseDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("GST Claimable (ITC)?", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextPrimaryDark)
-                        Text("Deduct ₹${MainViewModel.formatCurrencyPlain(gstAmount)} in GSTR-3B", fontSize = 10.sp, color = ForestEmerald)
+                        Text("GST Claimable (ITC)?", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                        Text("Deduct ₹${MainViewModel.formatCurrencyPlain(gstAmount)} in GSTR-3B", fontSize = 10.sp, color = SuccessGreenDark)
                     }
                     Switch(
                         checked = isGstClaimable,
                         onCheckedChange = { isGstClaimable = it },
-                        colors = SwitchDefaults.colors(checkedThumbColor = ForestEmerald, checkedTrackColor = ForestEmeraldContainer)
+                        colors = SwitchDefaults.colors(checkedThumbColor = GrowthEngineGold, checkedTrackColor = DarkInk)
                     )
                 }
 
@@ -276,7 +329,7 @@ fun AddExpenseDialog(
                             onSave(title, category, amount, isGstClaimable, gstAmount, paymentMode, vendor)
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().testTag("confirm_add_expense")
                 ) {
@@ -301,7 +354,8 @@ fun NewBatchDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().padding(10.dp).testTag("new_batch_dialog")
         ) {
             Column(
@@ -315,8 +369,8 @@ fun NewBatchDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Schedule Production Batch", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null) }
+                    Text("Schedule Production Batch", fontSize = 16.sp, fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, color = TextPrimary)
+                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null, tint = TextSecondary) }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -326,7 +380,11 @@ fun NewBatchDialog(
                     onValueChange = { goodName = it },
                     label = { Text("Finished Good Name") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -338,14 +396,22 @@ fun NewBatchDialog(
                         label = { Text("Target Quantity") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = unit,
                         onValueChange = { unit = it },
                         label = { Text("Unit") },
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
 
@@ -356,7 +422,11 @@ fun NewBatchDialog(
                     onValueChange = { rawMaterials = it },
                     label = { Text("BOM Recipe & Raw Materials") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
+                    maxLines = 2,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -367,7 +437,11 @@ fun NewBatchDialog(
                     label = { Text("Estimated Unit Cost (₹)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -380,11 +454,11 @@ fun NewBatchDialog(
                             onSave(goodName, qty, unit, rawMaterials, cost)
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                    colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold, contentColor = DarkInk),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().testTag("confirm_new_batch")
                 ) {
-                    Text("Issue Batch to Shopfloor", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Issue Batch to Shopfloor", color = DarkInk, fontWeight = FontWeight.Bold)
                 }
             }
         }

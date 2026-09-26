@@ -15,9 +15,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,11 +29,11 @@ import com.example.ui.theme.*
 data class StaffMemberModel(
     val id: Long,
     val name: String,
-    val role: String, // "Store Manager", "Accountant / Munim", "CNC Machine Operator", "Sales Executive", "Dispatch Assistant"
+    val role: String,
     val phone: String,
     val monthlySalary: Double,
     val advancePaid: Double,
-    val attendanceStatus: String, // "PRESENT", "ABSENT", "ON_LEAVE"
+    val attendanceStatus: String,
     val aadhaarLast4: String,
     val joinDate: String
 )
@@ -57,32 +59,39 @@ fun EmployeesScreen(
     }
 
     val totalMonthlyPayroll = employees.sumOf { it.monthlySalary }
-    val totalAdvances = employees.sumOf { it.advancePaid }
     val presentCount = employees.count { it.attendanceStatus == "PRESENT" }
+
+    val filteredEmployees = employees.filter {
+        it.name.contains(searchQuery, ignoreCase = true) ||
+                it.role.contains(searchQuery, ignoreCase = true) ||
+                it.phone.contains(searchQuery)
+    }
 
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddEmployeeClick,
-                containerColor = ImperialNavy,
-                contentColor = Color.White,
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
+                shape = RoundedCornerShape(12.dp),
                 icon = { Icon(Icons.Default.PersonAdd, contentDescription = null) },
                 text = { Text("Add Employee", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_add_employee")
             )
-        }
+        },
+        containerColor = BackgroundWhite,
+        modifier = Modifier.testTag("employees_screen")
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(WarmIvoryBackground)
                 .padding(paddingValues)
-                .testTag("employees_screen")
         ) {
             // Header
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -91,34 +100,43 @@ fun EmployeesScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
-                                text = "Staff & Payroll Management",
-                                fontSize = 20.sp,
+                                text = "HUMAN RESOURCES",
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
                             )
                             Text(
-                                text = "${employees.size} Staff Members • $presentCount Present Today",
+                                text = "Staff & Payroll Register",
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "${employees.size} Staff • $presentCount Present Today",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
                         }
 
                         Surface(
-                            color = ForestGreen.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = SuccessGreenContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen.copy(alpha = 0.3f))
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 horizontalAlignment = Alignment.End
                             ) {
-                                Text("Monthly CTC Payroll", fontSize = 10.sp, color = TextSecondary)
+                                Text("Monthly Payroll", fontSize = 9.sp, color = TextSecondary)
                                 Text(
                                     "₹${MainViewModel.formatCurrencyPlain(totalMonthlyPayroll)}",
-                                    fontSize = 14.sp,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ForestGreen
+                                    color = SuccessGreenDark
                                 )
                             }
                         }
@@ -144,10 +162,10 @@ fun EmployeesScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ImperialNavy,
+                            focusedBorderColor = DarkInk,
                             unfocusedBorderColor = BorderSubtle,
-                            focusedContainerColor = BackgroundWhite,
-                            unfocusedContainerColor = BackgroundWhite
+                            focusedContainerColor = SurfaceWhite,
+                            unfocusedContainerColor = SurfaceWhite
                         )
                     )
                 }
@@ -155,145 +173,118 @@ fun EmployeesScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 90.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(employees.filter {
-                    searchQuery.isBlank() || it.name.contains(searchQuery, ignoreCase = true) || it.role.contains(searchQuery, ignoreCase = true)
-                }, key = { it.id }) { staff ->
-                    EmployeeCard(
-                        staff = staff,
-                        onRecordAdvance = { onRecordAdvance(staff) },
-                        onToggleAttendance = {
-                            val newStatus = if (staff.attendanceStatus == "PRESENT") "ABSENT" else "PRESENT"
-                            val index = employees.indexOfFirst { it.id == staff.id }
-                            if (index != -1) {
-                                employees[index] = staff.copy(attendanceStatus = newStatus)
+                items(filteredEmployees, key = { it.id }) { employee ->
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Surface(
+                                        color = GrowthEngineGoldContainer,
+                                        shape = CircleShape,
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder),
+                                        modifier = Modifier.size(38.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = employee.name.take(2).uppercase(),
+                                                fontWeight = FontWeight.Bold,
+                                                color = GrowthEngineGoldDark,
+                                                fontSize = 13.sp
+                                            )
+                                        }
+                                    }
+
+                                    Column {
+                                        Text(
+                                            text = employee.name,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = TextPrimary
+                                        )
+                                        Text(
+                                            text = "${employee.role} • Joined ${employee.joinDate}",
+                                            fontSize = 11.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+
+                                Surface(
+                                    color = if (employee.attendanceStatus == "PRESENT") SuccessGreenContainer else Color(0xFFFEF3C7),
+                                    shape = RoundedCornerShape(4.dp)
+                                ) {
+                                    Text(
+                                        text = employee.attendanceStatus,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (employee.attendanceStatus == "PRESENT") SuccessGreenDark else WarningAmber,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
-                            onMarkAttendance(staff, newStatus)
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Salary: ₹${MainViewModel.formatCurrencyPlain(employee.monthlySalary)}/mo", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                                if (employee.advancePaid > 0) {
+                                    Text("Advance: ₹${MainViewModel.formatCurrencyPlain(employee.advancePaid)}", fontSize = 11.sp, color = ErrorRedDark, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+
+                            HorizontalDivider(color = BorderLight, modifier = Modifier.padding(vertical = 8.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Aadhaar: **** **** ${employee.aadhaarLast4}", fontSize = 10.sp, color = TextTertiary)
+
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(
+                                        onClick = { onRecordAdvance(employee) },
+                                        shape = RoundedCornerShape(6.dp),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Text("Record Advance", fontSize = 11.sp, color = DarkInk)
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            val newStatus = if (employee.attendanceStatus == "PRESENT") "ON_LEAVE" else "PRESENT"
+                                            onMarkAttendance(employee, newStatus)
+                                        },
+                                        shape = RoundedCornerShape(6.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Text("Attendance", fontSize = 11.sp, color = Color.White)
+                                    }
+                                }
+                            }
                         }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EmployeeCard(
-    staff: StaffMemberModel,
-    onRecordAdvance: () -> Unit,
-    onToggleAttendance: () -> Unit
-) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Surface(
-                        color = GrowthEngineGoldContainer,
-                        shape = CircleShape,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = staff.name.take(2).uppercase(),
-                                fontWeight = FontWeight.Bold,
-                                color = GrowthEngineGoldDark,
-                                fontSize = 14.sp
-                            )
-                        }
                     }
-
-                    Column {
-                        Text(
-                            text = staff.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp,
-                            color = DarkInk
-                        )
-                        Text(
-                            text = "${staff.role} • Joined ${staff.joinDate}",
-                            fontSize = 11.sp,
-                            color = TextSecondary
-                        )
-                        Text(
-                            text = "${staff.phone} • Aadhaar: ****${staff.aadhaarLast4}",
-                            fontSize = 11.sp,
-                            color = TextSecondary
-                        )
-                    }
-                }
-
-                Surface(
-                    color = if (staff.attendanceStatus == "PRESENT") ForestGreen.copy(alpha = 0.15f) else TerracottaRed.copy(alpha = 0.15f),
-                    shape = RoundedCornerShape(6.dp),
-                    modifier = Modifier.clickable { onToggleAttendance() }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            if (staff.attendanceStatus == "PRESENT") Icons.Default.CheckCircle else Icons.Default.Cancel,
-                            contentDescription = null,
-                            tint = if (staff.attendanceStatus == "PRESENT") ForestGreen else TerracottaRed,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = staff.attendanceStatus,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (staff.attendanceStatus == "PRESENT") ForestGreen else TerracottaRed
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = BorderSubtle)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Salary: ₹${MainViewModel.formatCurrencyPlain(staff.monthlySalary)}/mo",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = DarkInk
-                    )
-                    if (staff.advancePaid > 0) {
-                        Text(
-                            text = "Advance Drawn: ₹${MainViewModel.formatCurrencyPlain(staff.advancePaid)}",
-                            fontSize = 11.sp,
-                            color = TerracottaRed
-                        )
-                    }
-                }
-
-                OutlinedButton(
-                    onClick = onRecordAdvance,
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    Text("Pay Advance / Salary", fontSize = 11.sp)
                 }
             }
         }

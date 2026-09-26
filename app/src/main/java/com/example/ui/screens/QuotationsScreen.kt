@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -16,8 +17,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +48,6 @@ fun QuotationsScreen(
     val quotations = invoices.filter {
         it.invoiceType == "QUOTATION" || it.invoiceType == "PROFORMA" || it.invoiceNumber.startsWith("EST-") || it.invoiceNumber.startsWith("QT-")
     }.ifEmpty {
-        // If no explicit quotation types, treat unconfirmed/draft items or sample estimates
         invoices.take(3).map {
             it.copy(
                 invoiceNumber = it.invoiceNumber.replace("INV-", "EST-"),
@@ -66,25 +68,26 @@ fun QuotationsScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onCreateQuotationClick,
-                containerColor = ImperialNavy,
-                contentColor = Color.White,
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
                 text = { Text("New Estimate / Quote", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_create_quotation")
             )
-        }
+        },
+        containerColor = BackgroundWhite,
+        modifier = Modifier.testTag("quotations_screen")
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(WarmIvoryBackground)
                 .padding(paddingValues)
-                .testTag("quotations_screen")
         ) {
             // Header Card
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -93,30 +96,39 @@ fun QuotationsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
+                            Text(
+                                text = "SALES PIPELINE",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
                             Text(
                                 text = "Quotations & Estimates",
                                 fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = TextPrimary
                             )
                             Text(
-                                text = "$openQuotationsCount Open Estimates • Total Pipeline: ₹${MainViewModel.formatCurrencyPlain(totalQuotationValue)}",
+                                text = "$openQuotationsCount Open • ₹${MainViewModel.formatCurrencyPlain(totalQuotationValue)} Pipeline",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
                         }
                         Surface(
-                            color = ForestGreen.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = SuccessGreenContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen)
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(14.dp))
-                                Text("1-Tap Convert", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = SuccessGreenDark, modifier = Modifier.size(13.dp))
+                                Text("1-Tap Convert", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = SuccessGreenDark)
                             }
                         }
                     }
@@ -142,10 +154,10 @@ fun QuotationsScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ImperialNavy,
+                            focusedBorderColor = DarkInk,
                             unfocusedBorderColor = BorderSubtle,
-                            focusedContainerColor = BackgroundWhite,
-                            unfocusedContainerColor = BackgroundWhite
+                            focusedContainerColor = SurfaceWhite,
+                            unfocusedContainerColor = SurfaceWhite
                         )
                     )
 
@@ -156,13 +168,21 @@ fun QuotationsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         listOf("ALL" to "All Quotes", "OPEN" to "Open / Pending", "CONVERTED" to "Converted to Invoice").forEach { (key, label) ->
+                            val isSelected = statusFilter == key
                             FilterChip(
-                                selected = statusFilter == key,
+                                selected = isSelected,
                                 onClick = { statusFilter = key },
                                 label = { Text(label, fontSize = 11.sp) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = ImperialNavy,
-                                    selectedLabelColor = Color.White
+                                    selectedContainerColor = DarkInk,
+                                    selectedLabelColor = Color.White,
+                                    containerColor = SurfaceSubtle,
+                                    labelColor = TextPrimary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSelected,
+                                    borderColor = if (isSelected) DarkInk else BorderSubtle
                                 )
                             )
                         }
@@ -181,15 +201,24 @@ fun QuotationsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.EditNote, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(56.dp))
-                        Text("No Quotations Found", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkInk)
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(SurfaceSubtle)
+                                .border(1.dp, BorderSubtle, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.EditNote, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(24.dp))
+                        }
+                        Text("No Quotations Found", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextPrimary)
                         Text("Create a new quotation or estimate to send professional price quotes to clients via WhatsApp or PDF.", fontSize = 12.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 90.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredQuotations, key = { it.id }) { quote ->
@@ -218,7 +247,7 @@ fun QuotationCard(
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
         modifier = Modifier
             .fillMaxWidth()
@@ -236,7 +265,7 @@ fun QuotationCard(
                         text = quotation.partyName,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = DarkInk
+                        color = TextPrimary
                     )
                     Text(
                         text = "${quotation.invoiceNumber} • $dateStr",
@@ -246,14 +275,15 @@ fun QuotationCard(
                 }
 
                 Surface(
-                    color = if (isConverted) ForestGreen.copy(alpha = 0.15f) else GrowthEngineGoldContainer,
-                    shape = RoundedCornerShape(6.dp)
+                    color = if (isConverted) SuccessGreenContainer else GrowthEngineGoldContainer,
+                    shape = RoundedCornerShape(6.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, if (isConverted) SuccessGreen else GrowthEngineGoldBorder)
                 ) {
                     Text(
                         text = if (isConverted) "CONVERTED" else "VALID 15 DAYS",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (isConverted) ForestGreen else GrowthEngineGoldDark,
+                        color = if (isConverted) SuccessGreenDark else GrowthEngineGoldDark,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
@@ -264,12 +294,12 @@ fun QuotationCard(
             Text(
                 text = quotation.itemsSummary,
                 fontSize = 12.sp,
-                color = DarkInk.copy(alpha = 0.85f),
+                color = TextSecondary,
                 maxLines = 2
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = BorderLight)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -283,7 +313,7 @@ fun QuotationCard(
                         "₹${MainViewModel.formatCurrencyPlain(quotation.totalAmount)}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = ImperialNavy
+                        color = DarkInk
                     )
                 }
 
@@ -291,23 +321,24 @@ fun QuotationCard(
                     OutlinedButton(
                         onClick = onShare,
                         shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(13.dp))
+                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, tint = DarkInk, modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Share", fontSize = 11.sp)
+                        Text("Share", fontSize = 11.sp, color = DarkInk)
                     }
 
                     if (!isConverted) {
                         Button(
                             onClick = onConvert,
-                            colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                            colors = ButtonDefaults.buttonColors(containerColor = SuccessGreenDark, contentColor = Color.White),
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(13.dp))
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Convert to Invoice", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("Convert to Invoice", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }

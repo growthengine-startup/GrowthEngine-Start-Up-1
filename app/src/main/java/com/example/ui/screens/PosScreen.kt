@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,45 +55,49 @@ fun PosScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmIvoryBackground)
+            .background(BackgroundWhite)
             .testTag("pos_screen")
     ) {
         // POS Header bar with Wholesale Toggle
         Surface(
-            color = WarmIvorySurface,
-            tonalElevation = 2.dp,
+            color = BackgroundWhite,
+            tonalElevation = 1.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text(
-                        text = "Wholesale & Counter POS",
-                        fontSize = 15.sp,
+                        text = "POINT OF SALE",
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ImperialNavy
+                        color = GrowthEngineGoldDark,
+                        letterSpacing = 1.sp
                     )
                     Text(
-                        text = "Billing Mode: ${if (isWholesale) "B2B Trade Wholesale Rate" else "Retail / MRP Rate"}",
-                        fontSize = 11.sp,
-                        color = TextSecondaryMuted
+                        text = if (isWholesale) "B2B Wholesale POS" else "Retail Counter POS",
+                        fontSize = 17.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
                     )
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Wholesale", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = if (isWholesale) ImperialNavy else TextSecondaryMuted)
+                    Text("Wholesale Rate", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = if (isWholesale) DarkInk else TextSecondary)
                     Spacer(modifier = Modifier.width(6.dp))
                     Switch(
                         checked = isWholesale,
                         onCheckedChange = { onTogglePriceTier() },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = RoyalTeakGold,
-                            checkedTrackColor = ImperialNavy
+                            checkedThumbColor = GrowthEngineGold,
+                            checkedTrackColor = DarkInk
                         ),
                         modifier = Modifier.testTag("pos_wholesale_toggle")
                     )
@@ -102,23 +108,23 @@ fun PosScreen(
         // Success Notification Banner
         if (successMessage != null) {
             Surface(
-                color = ForestEmeraldContainer,
+                color = SuccessGreenContainer,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestEmerald, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = SuccessGreenDark, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(successMessage, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ForestEmerald)
+                        Text(successMessage, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = SuccessGreenDark)
                     }
                     IconButton(onClick = onDismissSuccess) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = ForestEmerald, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Close, contentDescription = null, tint = SuccessGreenDark, modifier = Modifier.size(16.dp))
                     }
                 }
             }
@@ -129,33 +135,33 @@ fun PosScreen(
             value = searchQuery,
             onValueChange = { searchQuery = it },
             placeholder = { Text("Search catalog or scan barcode...", fontSize = 12.sp) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondaryMuted) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .testTag("pos_search_input"),
             shape = RoundedCornerShape(10.dp),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = ImperialNavy,
-                unfocusedBorderColor = WarmIvoryBorder,
-                focusedContainerColor = WarmIvorySurface,
-                unfocusedContainerColor = WarmIvorySurface
+                focusedBorderColor = DarkInk,
+                unfocusedBorderColor = BorderSubtle,
+                focusedContainerColor = SurfaceWhite,
+                unfocusedContainerColor = SurfaceWhite
             )
         )
 
-        // Split view or vertical layout: Catalog + Live Cart
+        // Split view: Catalog + Live Cart
         Row(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp),
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // Product Catalog
             LazyColumn(
                 modifier = Modifier
-                    .weight(1.3f)
+                    .weight(1.2f)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(bottom = 16.dp)
@@ -164,9 +170,9 @@ fun PosScreen(
                     val price = if (isWholesale) product.wholesalePrice else product.mrp
                     Card(
                         onClick = { onAddItem(product) },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.fillMaxWidth().testTag("pos_product_${product.sku}")
                     ) {
                         Row(
@@ -181,17 +187,17 @@ fun PosScreen(
                                     text = product.name,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimaryDark
+                                    color = TextPrimary
                                 )
                                 Text(
                                     text = "SKU: ${product.sku} • HSN: ${product.hsnCode}",
                                     fontSize = 10.sp,
-                                    color = TextSecondaryMuted
+                                    color = TextSecondary
                                 )
                                 Text(
                                     text = "Stock: ${product.currentStock.toInt()} ${product.unit}",
                                     fontSize = 10.sp,
-                                    color = if (product.currentStock <= product.minReorderLevel) TerracottaRed else ForestEmerald,
+                                    color = if (product.currentStock <= product.minReorderLevel) ErrorRedDark else SuccessGreenDark,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
@@ -201,24 +207,24 @@ fun PosScreen(
                                     text = "₹${MainViewModel.formatCurrencyPlain(price)}",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ImperialNavy
+                                    color = DarkInk
                                 )
                                 Text(
                                     text = "+18% GST",
                                     fontSize = 9.sp,
-                                    color = TextSecondaryMuted
+                                    color = TextSecondary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Surface(
-                                    color = RoyalTeakGoldContainer,
+                                    color = GrowthEngineGoldContainer,
                                     shape = RoundedCornerShape(4.dp),
-                                    border = androidx.compose.foundation.BorderStroke(0.5.dp, RoyalTeakGold)
+                                    border = androidx.compose.foundation.BorderStroke(0.5.dp, GrowthEngineGoldBorder)
                                 ) {
                                     Text(
                                         text = "+ ADD",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = RoyalTeakGoldDark,
+                                        color = GrowthEngineGoldDark,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                     )
                                 }
@@ -230,9 +236,9 @@ fun PosScreen(
 
             // Live POS Cart Column
             Surface(
-                color = WarmIvorySurface,
+                color = SurfaceWhite,
                 shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                 modifier = Modifier
                     .weight(1.1f)
                     .fillMaxHeight()
@@ -252,19 +258,19 @@ fun PosScreen(
                             text = "Live Bill (${cart.size})",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ImperialNavy
+                            color = TextPrimary
                         )
                         if (cart.isNotEmpty()) {
                             TextButton(
                                 onClick = onClearCart,
                                 contentPadding = PaddingValues(0.dp)
                             ) {
-                                Text("Clear", fontSize = 11.sp, color = TerracottaRed)
+                                Text("Clear", fontSize = 11.sp, color = ErrorRedDark)
                             }
                         }
                     }
 
-                    HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 4.dp))
+                    HorizontalDivider(color = BorderLight, modifier = Modifier.padding(vertical = 4.dp))
 
                     if (cart.isEmpty()) {
                         Box(
@@ -274,10 +280,10 @@ fun PosScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.AddShoppingCart, contentDescription = null, tint = TextSecondaryMuted, modifier = Modifier.size(32.dp))
+                                Icon(Icons.Default.AddShoppingCart, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(32.dp))
                                 Spacer(modifier = Modifier.height(6.dp))
-                                Text("Cart is empty", fontSize = 12.sp, color = TextSecondaryMuted)
-                                Text("Tap items on left to add", fontSize = 10.sp, color = TextSecondaryMuted)
+                                Text("Cart is empty", fontSize = 12.sp, color = TextSecondary)
+                                Text("Tap items on left to add", fontSize = 10.sp, color = TextTertiary)
                             }
                         }
                     } else {
@@ -287,16 +293,17 @@ fun PosScreen(
                         ) {
                             items(cart) { item ->
                                 Surface(
-                                    color = WarmIvorySurfaceVariant,
+                                    color = SurfaceSubtle,
                                     shape = RoundedCornerShape(6.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Column(modifier = Modifier.padding(6.dp)) {
+                                    Column(modifier = Modifier.padding(8.dp)) {
                                         Text(
                                             text = item.product.name,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            color = TextPrimaryDark,
+                                            color = TextPrimary,
                                             maxLines = 1
                                         )
                                         Row(
@@ -308,7 +315,7 @@ fun PosScreen(
                                                 text = "₹${MainViewModel.formatCurrencyPlain(item.unitPrice * item.quantity)}",
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = ImperialNavy
+                                                color = DarkInk
                                             )
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 IconButton(
@@ -335,21 +342,21 @@ fun PosScreen(
                             }
                         }
 
-                        HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 4.dp))
+                        HorizontalDivider(color = BorderLight, modifier = Modifier.padding(vertical = 4.dp))
 
                         // Bill totals breakdown
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Subtotal:", fontSize = 10.sp, color = TextSecondaryMuted)
-                                Text("₹${MainViewModel.formatCurrencyPlain(cartSubtotal)}", fontSize = 10.sp)
+                                Text("Subtotal:", fontSize = 10.sp, color = TextSecondary)
+                                Text("₹${MainViewModel.formatCurrencyPlain(cartSubtotal)}", fontSize = 10.sp, color = TextPrimary)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("GST (18%):", fontSize = 10.sp, color = TextSecondaryMuted)
-                                Text("₹${MainViewModel.formatCurrencyPlain(cartGst)}", fontSize = 10.sp)
+                                Text("GST (18%):", fontSize = 10.sp, color = TextSecondary)
+                                Text("₹${MainViewModel.formatCurrencyPlain(cartGst)}", fontSize = 10.sp, color = TextPrimary)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Grand Total:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                                Text("₹${MainViewModel.formatCurrencyPlain(cartGrandTotal)}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
+                                Text("Grand Total:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("₹${MainViewModel.formatCurrencyPlain(cartGrandTotal)}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkInk)
                             }
                         }
 
@@ -364,27 +371,28 @@ fun PosScreen(
                                 val isSelected = selectedPaymentMode == mode
                                 Surface(
                                     onClick = { selectedPaymentMode = mode },
-                                    color = if (isSelected) ImperialNavy else WarmIvorySurfaceVariant,
+                                    color = if (isSelected) DarkInk else SurfaceSubtle,
                                     shape = RoundedCornerShape(4.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) DarkInk else BorderSubtle),
                                     modifier = Modifier.weight(1f)
                                 ) {
                                     Text(
                                         text = mode,
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) Color.White else TextPrimaryDark,
-                                        modifier = Modifier.padding(vertical = 4.dp),
+                                        color = if (isSelected) Color.White else TextPrimary,
+                                        modifier = Modifier.padding(vertical = 5.dp),
                                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                     )
                                 }
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Button(
                             onClick = { onCheckout(selectedPaymentMode) },
-                            colors = ButtonDefaults.buttonColors(containerColor = ForestEmerald),
+                            colors = ButtonDefaults.buttonColors(containerColor = SuccessGreenDark),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.fillMaxWidth().testTag("pos_checkout_button")
                         ) {

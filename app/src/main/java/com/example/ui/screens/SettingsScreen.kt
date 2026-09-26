@@ -19,13 +19,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.*
-
 import com.example.data.model.CurrentSubscription
-import com.example.data.model.SubscriptionTier
+import com.example.ui.theme.*
 
 @Composable
 fun SettingsScreen(
@@ -40,19 +39,45 @@ fun SettingsScreen(
     var bankAccount by remember { mutableStateOf("38492049102") }
     var ifsc by remember { mutableStateOf("SBIN0004521") }
     var upiId by remember { mutableStateOf("kalyanworks@sbi") }
+    var registeredAddress by remember { mutableStateOf("Plot 42, MIDC Industrial Area, Phase II, Kalyan, Maharashtra - 421301") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundWhite)
             .verticalScroll(rememberScrollState())
-            .padding(14.dp)
+            .padding(16.dp)
             .testTag("settings_screen"),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Plans & Billing Summary Section in Settings
+        // Section Header
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "ORGANIZATION",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = GrowthEngineGoldDark,
+                letterSpacing = 1.sp
+            )
+            Text(
+                text = "Business Profile & Settings",
+                fontSize = 22.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Configure legal business entity, tax coordinates, bank settlement accounts, and print options.",
+                fontSize = 12.sp,
+                color = TextSecondary,
+                lineHeight = 17.sp
+            )
+        }
+
+        // Plans & Billing Summary Section
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = GrowthEngineGoldContainer),
             border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder),
             modifier = Modifier.fillMaxWidth().testTag("settings_plans_billing_card")
@@ -65,21 +90,21 @@ fun SettingsScreen(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
-                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .size(36.dp)
+                                .clip(CircleShape)
                                 .background(DarkInk),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.WorkspacePremium, contentDescription = null, tint = GrowthEngineGoldLight, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.WorkspacePremium, contentDescription = null, tint = GrowthEngineGoldLight, modifier = Modifier.size(20.dp))
                         }
                         Column {
                             Text(
-                                text = "PLANS & BILLING",
-                                fontSize = 11.sp,
+                                text = "CURRENT PLAN",
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = GrowthEngineGoldDark,
                                 letterSpacing = 0.5.sp
@@ -87,7 +112,7 @@ fun SettingsScreen(
                             Text(
                                 text = currentSubscription?.tier?.title ?: "Growth Pro",
                                 fontSize = 16.sp,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                                fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
                             )
@@ -96,7 +121,7 @@ fun SettingsScreen(
 
                     Surface(
                         color = SuccessGreenContainer,
-                        shape = RoundedCornerShape(4.dp),
+                        shape = RoundedCornerShape(12.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen)
                     ) {
                         Text(
@@ -104,15 +129,15 @@ fun SettingsScreen(
                             color = SuccessGreenDark,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Razorpay Auto-renew active · Unlimited GST Invoices · Supabase Sync",
+                    text = "Unlimited GST Invoices · AI Copilot · Real-time Multi-Device Sync",
                     fontSize = 11.sp,
                     color = TextSecondary
                 )
@@ -122,20 +147,21 @@ fun SettingsScreen(
                 Button(
                     onClick = onNavigateToBilling,
                     colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().testTag("btn_manage_plans_settings")
                 ) {
-                    Icon(Icons.Default.CreditCard, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.CreditCard, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Manage Plans, Billing & Invoices →", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("Manage Subscription & Invoices →", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
-        // Business Profile Header Card
+
+        // Business Profile Card
         Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -145,19 +171,20 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "ENTERPRISE PROFILE",
-                        fontSize = 12.sp,
+                        text = "LEGAL ENTITY & TAX IDENTITY",
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ImperialNavy,
+                        color = TextPrimary,
                         letterSpacing = 0.5.sp
                     )
                     Surface(
-                        color = RoyalTeakGoldContainer,
-                        shape = RoundedCornerShape(4.dp)
+                        color = GrowthEngineGoldContainer,
+                        shape = RoundedCornerShape(4.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, GrowthEngineGoldBorder)
                     ) {
                         Text(
                             text = "UDYAM VERIFIED",
-                            color = RoyalTeakGoldDark,
+                            color = GrowthEngineGoldDark,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -165,125 +192,167 @@ fun SettingsScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 OutlinedTextField(
                     value = companyName,
                     onValueChange = { companyName = it },
-                    label = { Text("Trade & Legal Name") },
+                    label = { Text("Trade & Legal Business Name") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
                         value = gstin,
                         onValueChange = { gstin = it },
                         label = { Text("GSTIN") },
                         modifier = Modifier.weight(1.2f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = pan,
                         onValueChange = { pan = it },
-                        label = { Text("PAN") },
+                        label = { Text("PAN Number") },
                         modifier = Modifier.weight(0.8f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = udyamNo,
                     onValueChange = { udyamNo = it },
-                    label = { Text("Udyam Registration Number") },
+                    label = { Text("MSME Udyam Registration Number") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedTextField(
+                    value = registeredAddress,
+                    onValueChange = { registeredAddress = it },
+                    label = { Text("Registered Business Address") },
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 2,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
             }
         }
 
-        // Bank Settlement & UPI VPA Card
+        // Bank Settlement & UPI Coordinates
         Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "BANKING & UPI RECONCILIATION",
-                    fontSize = 12.sp,
+                    text = "BANKING & UPI SETTLEMENT",
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ImperialNavy,
+                    color = TextPrimary,
                     letterSpacing = 0.5.sp
                 )
                 Text(
-                    text = "Settlement coordinates printed on tax invoices & QR codes",
-                    fontSize = 10.sp,
-                    color = TextSecondaryMuted
+                    text = "Printed on all tax invoices, estimates, and dynamic UPI payment QR codes",
+                    fontSize = 11.sp,
+                    color = TextSecondary
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 OutlinedTextField(
                     value = bankAccount,
                     onValueChange = { bankAccount = it },
-                    label = { Text("Current A/C Number (State Bank of India)") },
+                    label = { Text("Current Bank Account Number") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = DarkInk,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
                         value = ifsc,
                         onValueChange = { ifsc = it },
                         label = { Text("IFSC Code") },
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                     OutlinedTextField(
                         value = upiId,
                         onValueChange = { upiId = it },
-                        label = { Text("UPI VPA") },
+                        label = { Text("UPI VPA / Handle") },
                         modifier = Modifier.weight(1f),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = DarkInk,
+                            unfocusedBorderColor = BorderSubtle
+                        )
                     )
                 }
             }
         }
 
-        // MSMED Act Compliance Banner
+        // MSMED Act Compliance Information
         Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurfaceVariant),
-            border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(14.dp)) {
+            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.Gavel, contentDescription = null, tint = ImperialNavy, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Gavel, contentDescription = null, tint = GrowthEngineGoldDark, modifier = Modifier.size(20.dp))
                     Text(
                         text = "MSMED Act Section 15 & 16 Enforcement",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ImperialNavy
+                        color = TextPrimary
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "GrowthEngine monitors your 45-day debtor payment limit under the MSME Samadhaan guidelines. Automated compound interest alerts at 3x the RBI repo rate are calculated for receivables exceeding agreed credit terms.",
+                    text = "GrowthEngine monitors your 45-day debtor payment limit under MSME Samadhaan guidelines. Automated compound interest alerts at 3x the RBI repo rate are calculated for receivables exceeding agreed credit terms.",
                     fontSize = 11.sp,
                     lineHeight = 16.sp,
-                    color = TextPrimaryDark
+                    color = TextSecondary
                 )
             }
         }
@@ -292,64 +361,16 @@ fun SettingsScreen(
             onClick = {
                 Toast.makeText(context, "Enterprise profile updated successfully", Toast.LENGTH_SHORT).show()
             },
-            colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+            colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
             shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.fillMaxWidth().testTag("btn_save_settings")
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(46.dp)
+                .testTag("btn_save_settings")
         ) {
-            Text("Save Business Settings", color = Color.White, fontWeight = FontWeight.Bold)
+            Text("Save Business Settings", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
-
-        // Secure Private Admin App Gateway (Administrators Only)
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().testTag("card_admin_app_gateway")
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        val intent = android.content.Intent(context, com.example.admin.AdminActivity::class.java)
-                        context.startActivity(intent)
-                    }
-                    .padding(14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(ImperialNavy),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Shield, contentDescription = null, tint = GrowthEngineGold, modifier = Modifier.size(18.dp))
-                    }
-                    Column {
-                        Text(
-                            text = "GrowthEngine Admin Console",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = DarkInk
-                        )
-                        Text(
-                            text = "Private App for prajindezaa142@gmail.com",
-                            fontSize = 11.sp,
-                            color = TextSecondary
-                        )
-                    }
-                }
-                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = TextSecondary)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }

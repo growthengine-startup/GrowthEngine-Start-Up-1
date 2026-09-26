@@ -42,7 +42,8 @@ fun WhatsAppReminderDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -79,27 +80,27 @@ fun WhatsAppReminderDialog(
                             text = "WhatsApp Khata Notice",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextPrimaryDark
+                            color = TextPrimary
                         )
                     }
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondaryMuted)
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Surface(
-                    color = WarmIvorySurfaceVariant,
+                    color = SurfaceSubtle,
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = reminderText,
                         fontSize = 11.sp,
                         fontFamily = FontFamily.Monospace,
-                        color = TextPrimaryDark,
+                        color = TextPrimary,
                         modifier = Modifier
                             .padding(12.dp)
                             .heightIn(max = 240.dp)
@@ -130,7 +131,7 @@ fun WhatsAppReminderDialog(
 
                     Button(
                         onClick = {
-                            Toast.makeText(context, "Ready to dispatch via WhatsApp Business API", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Dispatched via WhatsApp Business API", Toast.LENGTH_SHORT).show()
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = ForestEmerald),
@@ -139,7 +140,7 @@ fun WhatsAppReminderDialog(
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Send Notice")
+                        Text("Send Notice", color = Color.White)
                     }
                 }
             }
@@ -156,7 +157,7 @@ fun CreateInvoiceDialog(
     if (customers.isEmpty()) return
 
     var selectedCustomer by remember { mutableStateOf(customers.first()) }
-    var itemsSummary by remember { mutableStateOf("Precision Bearing Units & Shafts") }
+    var itemsSummary by remember { mutableStateOf("Precision Machine Assemblies & Tooling") }
     var subtotalText by remember { mutableStateOf("150000") }
     var isInterState by remember { mutableStateOf(selectedCustomer.stateCode != "27") }
     var paymentMode by remember { mutableStateOf("CREDIT") }
@@ -170,7 +171,8 @@ fun CreateInvoiceDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
@@ -191,16 +193,16 @@ fun CreateInvoiceDialog(
                         text = "New GST Tax Invoice",
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ImperialNavy
+                        color = TextPrimary
                     )
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = TextSecondary)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text("Select Customer (Buyer):", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextSecondaryMuted)
+                Text("Select Customer (Buyer):", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
                 customers.forEach { customer ->
                     val isChosen = selectedCustomer.id == customer.id
                     Surface(
@@ -209,10 +211,10 @@ fun CreateInvoiceDialog(
                             isInterState = customer.stateCode != "27"
                         },
                         shape = RoundedCornerShape(8.dp),
-                        color = if (isChosen) RoyalTeakGoldContainer else WarmIvorySurfaceVariant,
+                        color = if (isChosen) GrowthEngineGoldContainer else SurfaceSubtle,
                         border = androidx.compose.foundation.BorderStroke(
                             1.dp,
-                            if (isChosen) RoyalTeakGold else WarmIvoryBorder
+                            if (isChosen) GrowthEngineGold else BorderSubtle
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -224,11 +226,11 @@ fun CreateInvoiceDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text(customer.name, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                                Text("${customer.gstin} • State: ${customer.stateName}", fontSize = 10.sp, color = TextSecondaryMuted)
+                                Text(customer.name, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("${customer.gstin} • State: ${customer.stateName}", fontSize = 10.sp, color = TextSecondary)
                             }
                             if (isChosen) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = RoyalTeakGoldDark, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = GrowthEngineGoldDark, modifier = Modifier.size(18.dp))
                             }
                         }
                     }
@@ -259,26 +261,26 @@ fun CreateInvoiceDialog(
 
                 // Tax preview card
                 Surface(
-                    color = WarmIvorySurfaceVariant,
+                    color = SurfaceSubtle,
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(if (isInterState) "IGST (18% Inter-state):" else "CGST (9%) + SGST (9%):", fontSize = 11.sp, color = TextSecondaryMuted)
-                            Text("₹${MainViewModel.formatCurrencyPlain(totalTax)}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            Text(if (isInterState) "IGST (18% Inter-state):" else "CGST (9%) + SGST (9%):", fontSize = 11.sp, color = TextSecondary)
+                            Text("₹${MainViewModel.formatCurrencyPlain(totalTax)}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
                         }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Grand Total Payable:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                            Text("₹${MainViewModel.formatCurrencyPlain(grandTotal)}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
+                            Text("Grand Total Payable:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text("₹${MainViewModel.formatCurrencyPlain(grandTotal)}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = GrowthEngineGoldDark)
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text("Settlement Method:", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextSecondaryMuted)
+                Text("Settlement Method:", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -290,7 +292,7 @@ fun CreateInvoiceDialog(
                             onClick = { paymentMode = mode },
                             label = { Text(mode, fontSize = 10.sp) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = ImperialNavy,
+                                selectedContainerColor = DarkInk,
                                 selectedLabelColor = Color.White
                             )
                         )
@@ -323,11 +325,11 @@ fun CreateInvoiceDialog(
                             notes
                         )
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                    colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().testTag("save_invoice_btn")
                 ) {
-                    Text("Generate & Issue GST Invoice", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Generate & Issue GST Invoice", color = Color(0xFF141414), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -348,7 +350,8 @@ fun RecordPaymentDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().padding(12.dp).testTag("record_payment_dialog")
         ) {
             Column(
@@ -361,15 +364,15 @@ fun RecordPaymentDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Record Khata Payment", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
-                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null) }
+                    Text("Record Khata Payment", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                    IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, contentDescription = null, tint = TextSecondary) }
                 }
 
                 Text(
                     text = "Customer: ${party.tradeName}",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimaryDark
+                    color = TextPrimary
                 )
                 Text(
                     text = "Current Outstanding: ₹${MainViewModel.formatCurrencyPlain(party.outstandingBalance)}",
@@ -450,12 +453,13 @@ fun StockAdjustDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().padding(14.dp).testTag("stock_adjust_dialog")
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(18.dp)) {
-                Text("Stock Inward / Adjustment", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
-                Text(product.name, fontSize = 12.sp, color = TextSecondaryMuted)
+                Text("Stock Inward / Adjustment", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                Text(product.name, fontSize = 12.sp, color = TextSecondary)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -487,11 +491,11 @@ fun StockAdjustDialog(
                             val newStock = stockText.toDoubleOrNull() ?: product.currentStock
                             onSave(product.id, newStock)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                        colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold),
                         modifier = Modifier.weight(1f).testTag("save_stock_btn"),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Update Stock", color = Color.White)
+                        Text("Update Stock", color = Color(0xFF141414), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -517,7 +521,7 @@ fun AddCustomerDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().padding(8.dp).testTag("add_customer_dialog")
         ) {

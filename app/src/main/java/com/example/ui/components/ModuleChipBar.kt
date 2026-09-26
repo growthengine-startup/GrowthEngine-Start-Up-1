@@ -37,8 +37,8 @@ fun ModuleChipBar(
     )
 
     Surface(
-        color = WarmIvorySurfaceVariant,
-        tonalElevation = 2.dp,
+        color = SurfaceSubtle,
+        tonalElevation = 0.dp,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -65,19 +65,19 @@ fun ModuleChipBar(
                             imageVector = icon,
                             contentDescription = label,
                             modifier = Modifier.size(16.dp),
-                            tint = if (isSelected) ImperialNavy else TextSecondaryMuted
+                            tint = if (isSelected) DarkInk else TextSecondary
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = RoyalTeakGoldContainer,
-                        selectedLabelColor = RoyalTeakGoldDark,
-                        containerColor = WarmIvorySurface,
-                        labelColor = TextPrimaryDark
+                        selectedContainerColor = GrowthEngineGoldContainer,
+                        selectedLabelColor = GrowthEngineGoldDark,
+                        containerColor = SurfaceWhite,
+                        labelColor = TextPrimary
                     ),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
                         selected = isSelected,
-                        borderColor = if (isSelected) RoyalTeakGold else WarmIvoryBorder
+                        borderColor = if (isSelected) GrowthEngineGold else BorderSubtle
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.testTag("module_chip_${tab.name.lowercase()}")

@@ -112,15 +112,15 @@ fun PurchasesScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
                                 text = "Purchases & Inward GST",
-                                fontSize = 20.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = ImperialNavy
                             )
                             Text(
-                                text = "${purchaseBills.size} Bills • ₹${MainViewModel.formatCurrencyPlain(totalPurchases)} Total Purchases",
+                                text = "${purchaseBills.size} Inward Bills • ₹${MainViewModel.formatCurrencyPlain(totalPurchases)}",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
@@ -128,13 +128,14 @@ fun PurchasesScreen(
 
                         Surface(
                             color = ForestGreen.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.padding(start = 8.dp)
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 horizontalAlignment = Alignment.End
                             ) {
-                                Text("GSTR-2B Input Tax Credit", fontSize = 10.sp, color = TextSecondary)
+                                Text("GSTR-2B ITC", fontSize = 9.sp, color = TextSecondary)
                                 Text(
                                     "₹${MainViewModel.formatCurrencyPlain(totalItcClaimable)}",
                                     fontSize = 13.sp,
@@ -212,7 +213,7 @@ fun PurchasesScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 90.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredBills, key = { it.id }) { bill ->

@@ -4,11 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
@@ -19,14 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.CopilotMessageEntity
 import com.example.ui.AppNavTab
+import com.example.ui.MainViewModel
 import com.example.ui.theme.*
-import kotlinx.coroutines.launch
 
 @Composable
 fun CopilotScreen(
@@ -38,14 +39,12 @@ fun CopilotScreen(
 ) {
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
-    val quickQuestions = listOf(
-        "Recover ₹2.15L overdue from Gujarat Tooling",
-        "Estimate Net GSTR-3B Tax & ITC Claim",
-        "Analyze Low Stock & Draft Restock Plan",
-        "Which clients offer highest profit margin?",
-        "How does MSMED Act 45-day rule apply?"
+    val quickPrompts = listOf(
+        "Who owes me money over 30 days?",
+        "Show my GST liability this month",
+        "Which products are low on stock?",
+        "Draft payment reminder for overdue clients"
     )
 
     LaunchedEffect(messages.size) {
@@ -57,207 +56,171 @@ fun CopilotScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmIvoryBackground)
-            .testTag("copilot_screen")
+            .background(BackgroundWhite)
+            .testTag("screen_copilot")
     ) {
-        // Copilot Status Strip
+        // AI Header
         Surface(
-            color = ImperialNavy,
+            color = SurfaceWhite,
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(10.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
-                            .background(RoyalTeakGold)
-                    )
+                            .background(GrowthEngineGoldContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = "AI Munim",
+                            tint = GrowthEngineGoldDark,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     Column {
                         Text(
-                            text = "GrowthEngine Strategic Copilot",
-                            color = Color.White,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "AI Business Copilot",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
                         )
-                        Text(
-                            text = "Real-time GST, Khata & Working Capital Advisory",
-                            color = RoyalTeakGoldLight,
-                            fontSize = 10.sp
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isThinking) GrowthEngineGold else ForestEmerald)
+                            )
+                            Text(
+                                text = if (isThinking) "Munim is calculating..." else "Trained on Indian MSME Accounting",
+                                fontSize = 11.sp,
+                                color = TextSecondary
+                            )
+                        }
                     }
                 }
 
                 Surface(
-                    color = RoyalTeakGoldContainer,
-                    shape = RoundedCornerShape(12.dp)
+                    color = SurfaceSubtle,
+                    shape = RoundedCornerShape(6.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
                 ) {
                     Text(
-                        text = "GEMINI FLASH 3.5",
-                        color = RoyalTeakGoldDark,
-                        fontSize = 9.sp,
+                        text = "Munim AI",
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        color = GrowthEngineGoldDark,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
         }
 
-        // Quick Suggestion Pills
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(WarmIvorySurfaceVariant)
-                .padding(vertical = 8.dp, horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(quickQuestions) { question ->
-                SuggestionChip(
-                    onClick = {
-                        onSendQuery(question)
-                    },
-                    label = {
-                        Text(
-                            text = question,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = ImperialNavy
-                        )
-                    },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = WarmIvorySurface
-                    ),
-                    border = SuggestionChipDefaults.suggestionChipBorder(
-                        enabled = true,
-                        borderColor = RoyalTeakGold.copy(alpha = 0.5f)
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.testTag("copilot_chip_${question.take(10)}")
-                )
-            }
-        }
-
-        // Message Thread
+        // Messages List
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp),
-            contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp),
+                .padding(horizontal = 16.dp),
+            contentPadding = PaddingValues(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(messages) { message ->
-                val isUser = message.sender == "USER"
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
-                ) {
-                    if (!isUser) {
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .background(ImperialNavy),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = null,
-                                tint = RoyalTeakGold,
-                                modifier = Modifier.size(16.dp)
-                            )
+            if (messages.isEmpty()) {
+                item {
+                    CopilotWelcomeBanner(onPromptClick = { prompt ->
+                        onSendQuery(prompt)
+                    })
+                }
+            } else {
+                items(messages) { msg ->
+                    CopilotMessageBubble(
+                        msg = msg,
+                        onActionClick = { actionType ->
+                            when (actionType) {
+                                "PAYMENT_REMINDER" -> onGeneratePaymentReminder()
+                                "RESTOCK_ALERT" -> onNavigate(AppNavTab.INVENTORY)
+                                "GST_SUMMARY" -> onNavigate(AppNavTab.REPORTS)
+                                else -> onNavigate(AppNavTab.DASHBOARD)
+                            }
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-
-                    Column(
-                        modifier = Modifier.widthIn(max = 310.dp)
-                    ) {
+                    )
+                }
+                if (isThinking) {
+                    item {
                         Surface(
-                            color = if (isUser) ImperialNavy else WarmIvorySurface,
-                            shape = RoundedCornerShape(
-                                topStart = 12.dp,
-                                topEnd = 12.dp,
-                                bottomStart = if (isUser) 12.dp else 2.dp,
-                                bottomEnd = if (isUser) 2.dp else 12.dp
-                            ),
-                            border = if (!isUser) androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder) else null,
-                            tonalElevation = if (isUser) 0.dp else 2.dp
+                            shape = RoundedCornerShape(12.dp),
+                            color = SurfaceWhite,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                            modifier = Modifier.padding(vertical = 4.dp)
                         ) {
-                            Column(modifier = Modifier.padding(14.dp)) {
-                                Text(
-                                    text = message.messageText,
-                                    color = if (isUser) Color.White else TextPrimaryDark,
-                                    fontSize = 13.sp,
-                                    lineHeight = 19.sp
+                            Row(
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = GrowthEngineGold
                                 )
-
-                                // Action Buttons if provided
-                                if (message.actionType == "PAYMENT_REMINDER") {
-                                    Spacer(modifier = Modifier.height(10.dp))
-                                    Button(
-                                        onClick = onGeneratePaymentReminder,
-                                        colors = ButtonDefaults.buttonColors(containerColor = ForestEmerald),
-                                        shape = RoundedCornerShape(6.dp),
-                                        modifier = Modifier.fillMaxWidth().testTag("copilot_action_reminder")
-                                    ) {
-                                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Draft WhatsApp Notice with UPI", fontSize = 11.sp)
-                                    }
-                                }
+                                Text(
+                                    text = "Analyzing invoices, ledger & tax entries...",
+                                    fontSize = 12.sp,
+                                    color = TextSecondary
+                                )
                             }
                         }
                     }
                 }
             }
+        }
 
-            if (isThinking) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .background(ImperialNavy),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                color = RoyalTeakGold,
-                                strokeWidth = 2.dp
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Analyzing enterprise financials & GST rules...",
-                            color = TextSecondaryMuted,
-                            fontSize = 12.sp,
-                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+        // Quick Suggestion Chips
+        if (messages.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                quickPrompts.take(2).forEach { prompt ->
+                    SuggestionChip(
+                        onClick = { onSendQuery(prompt) },
+                        label = { Text(prompt, fontSize = 11.sp, maxLines = 1) },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = SurfaceWhite,
+                            labelColor = TextPrimary
+                        ),
+                        border = SuggestionChipDefaults.suggestionChipBorder(
+                            enabled = true,
+                            borderColor = BorderSubtle
                         )
-                    }
+                    )
                 }
             }
         }
 
-        // Input Field Bar
+        // Bottom Chat Input Bar
         Surface(
-            color = WarmIvorySurface,
-            tonalElevation = 6.dp,
+            color = SurfaceWhite,
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -270,44 +233,221 @@ fun CopilotScreen(
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = { inputText = it },
-                    placeholder = { Text("Ask Copilot regarding GST, Khata, Stock...", fontSize = 12.sp) },
+                    placeholder = { Text("Ask your Munim anything (GST, Ledger, Stock)...", fontSize = 13.sp) },
                     modifier = Modifier
                         .weight(1f)
                         .testTag("copilot_input_field"),
                     shape = RoundedCornerShape(24.dp),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = {
+                        if (inputText.isNotBlank()) {
+                            onSendQuery(inputText.trim())
+                            inputText = ""
+                        }
+                    }),
+                    singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = ImperialNavy,
-                        unfocusedBorderColor = WarmIvoryBorder
-                    ),
-                    maxLines = 3
+                        focusedContainerColor = SurfaceSubtle,
+                        unfocusedContainerColor = SurfaceSubtle,
+                        focusedBorderColor = GrowthEngineGold,
+                        unfocusedBorderColor = BorderSubtle
+                    )
                 )
 
                 IconButton(
                     onClick = {
                         if (inputText.isNotBlank()) {
-                            val text = inputText
+                            onSendQuery(inputText.trim())
                             inputText = ""
-                            onSendQuery(text)
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(messages.size)
-                            }
                         }
                     },
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(42.dp)
                         .clip(CircleShape)
-                        .background(ImperialNavy)
-                        .testTag("copilot_send_button"),
-                    enabled = inputText.isNotBlank() && !isThinking
+                        .background(if (inputText.isNotBlank()) GrowthEngineGold else SurfaceSubtle)
+                        .testTag("copilot_send_btn")
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send",
-                        tint = if (inputText.isNotBlank()) RoyalTeakGoldLight else Color.Gray,
+                        tint = if (inputText.isNotBlank()) Color(0xFF141414) else TextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun CopilotWelcomeBanner(onPromptClick: (String) -> Unit) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(54.dp)
+                    .clip(CircleShape)
+                    .background(GrowthEngineGoldContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = GrowthEngineGoldDark,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Welcome to GrowthEngine AI Munim",
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Your 24/7 financial assistant. Ask questions about your outstanding invoices, stock shortages, GST compliance, or generate instant reports.",
+                fontSize = 12.sp,
+                color = TextSecondary,
+                lineHeight = 17.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "TRY ASKING:",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextSecondary,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            listOf(
+                "Who are my top overdue debtors this week?",
+                "Calculate input tax credit (ITC) available for this quarter",
+                "What raw materials do I need to reorder immediately?",
+                "Draft WhatsApp payment reminder for overdue clients"
+            ).forEach { prompt ->
+                Surface(
+                    onClick = { onPromptClick(prompt) },
+                    shape = RoundedCornerShape(8.dp),
+                    color = SurfaceSubtle,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(prompt, fontSize = 12.sp, color = TextPrimary, modifier = Modifier.weight(1f))
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(14.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CopilotMessageBubble(
+    msg: CopilotMessageEntity,
+    onActionClick: (String) -> Unit
+) {
+    val isUser = msg.sender == "USER"
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
+    ) {
+        if (!isUser) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(GrowthEngineGoldContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = GrowthEngineGoldDark,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+
+        Column(
+            modifier = Modifier.widthIn(max = 280.dp),
+            horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
+        ) {
+            Surface(
+                shape = RoundedCornerShape(
+                    topStart = 14.dp,
+                    topEnd = 14.dp,
+                    bottomStart = if (isUser) 14.dp else 2.dp,
+                    bottomEnd = if (isUser) 2.dp else 14.dp
+                ),
+                color = if (isUser) DarkInk else SurfaceWhite,
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (isUser) DarkInk else BorderSubtle
+                )
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = msg.messageText,
+                        fontSize = 13.sp,
+                        color = if (isUser) Color.White else TextPrimary,
+                        lineHeight = 18.sp
+                    )
+
+                    if (!isUser && !msg.actionType.isNullOrBlank() && msg.actionType != "NONE") {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(
+                            onClick = { onActionClick(msg.actionType) },
+                            colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Execute Action (${msg.actionType})",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF141414)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = MainViewModel.formatDate(msg.timestamp),
+                fontSize = 10.sp,
+                color = TextSecondary
+            )
         }
     }
 }

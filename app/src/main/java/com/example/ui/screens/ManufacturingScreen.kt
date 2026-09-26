@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,24 +31,17 @@ fun ManufacturingScreen(
 ) {
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = onNewBatchClick,
-                containerColor = ImperialNavy,
-                contentColor = RoyalTeakGoldLight,
-                shape = RoundedCornerShape(16.dp),
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
+                shape = RoundedCornerShape(12.dp),
+                icon = { Icon(Icons.Default.Add, contentDescription = "New Batch") },
+                text = { Text("New Batch (BOM)", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_new_batch")
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "New Batch")
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("New Batch", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-            }
+            )
         },
-        containerColor = WarmIvoryBackground,
+        containerColor = BackgroundWhite,
         modifier = Modifier.testTag("manufacturing_screen")
     ) { padding ->
         Column(
@@ -57,42 +51,52 @@ fun ManufacturingScreen(
         ) {
             // Header summary
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "Production & Bill of Materials (BOM)",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ImperialNavy
-                        )
-                        Text(
-                            text = "${batches.size} Production Batches Tracked",
-                            fontSize = 11.sp,
-                            color = TextSecondaryMuted
-                        )
-                    }
-
-                    Surface(
-                        color = RoyalTeakGoldContainer,
-                        shape = RoundedCornerShape(4.dp)
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "JOB WORK & CNC",
-                            color = RoyalTeakGoldDark,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                        )
+                        Column {
+                            Text(
+                                text = "PRODUCTION & JOB WORK",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = "Bill of Materials (BOM)",
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "${batches.size} Active Production Runs",
+                                fontSize = 12.sp,
+                                color = TextSecondary
+                            )
+                        }
+
+                        Surface(
+                            color = GrowthEngineGoldContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder)
+                        ) {
+                            Text(
+                                text = "SHOP FLOOR",
+                                color = GrowthEngineGoldDark,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -101,15 +105,15 @@ fun ManufacturingScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 14.dp),
-                contentPadding = PaddingValues(top = 10.dp, bottom = 80.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(top = 12.dp, bottom = 90.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(batches) { batch ->
+                items(batches, key = { it.id }) { batch ->
                     Card(
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.fillMaxWidth().testTag("batch_card_${batch.batchCode}")
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
@@ -123,50 +127,35 @@ fun ManufacturingScreen(
                                         text = batch.batchCode,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = ImperialNavy
+                                        color = TextPrimary
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = "• ${batch.targetQuantity.toInt()} ${batch.unit}",
                                         fontSize = 12.sp,
-                                        color = TextSecondaryMuted
+                                        color = TextSecondary
                                     )
                                 }
                                 StatusBadge(status = batch.status)
                             }
 
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(6.dp))
 
                             Text(
                                 text = batch.finishedGoodName,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextPrimaryDark
+                                color = TextPrimary
                             )
 
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Raw Materials: ${batch.rawMaterialsUsedSummary}",
+                                fontSize = 11.sp,
+                                color = TextSecondary,
+                                maxLines = 2
+                            )
 
-                            Surface(
-                                color = WarmIvorySurfaceVariant,
-                                shape = RoundedCornerShape(6.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(modifier = Modifier.padding(8.dp)) {
-                                    Text(
-                                        text = "Raw Materials & Recipe Used:",
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = TextSecondaryMuted
-                                    )
-                                    Text(
-                                        text = batch.rawMaterialsUsedSummary,
-                                        fontSize = 11.sp,
-                                        color = TextPrimaryDark
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
+                            HorizontalDivider(color = BorderLight, modifier = Modifier.padding(vertical = 8.dp))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -174,36 +163,34 @@ fun ManufacturingScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
+                                    Text("Estimated Batch Cost", fontSize = 10.sp, color = TextSecondary)
                                     Text(
-                                        text = "Est. Unit Cost: ₹${MainViewModel.formatCurrencyPlain(batch.estimatedCostPerUnit)}",
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = ImperialNavy
-                                    )
-                                    Text(
-                                        text = "Start: ${MainViewModel.formatDate(batch.startDateEpoch)}",
-                                        fontSize = 9.sp,
-                                        color = TextSecondaryMuted
+                                        "₹${MainViewModel.formatCurrencyPlain(batch.estimatedCostPerUnit * batch.targetQuantity)}",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = DarkInk
                                     )
                                 }
 
-                                if (batch.status == "IN_PRODUCTION") {
-                                    Button(
-                                        onClick = { onUpdateBatchStatus(batch.id, "QUALITY_CHECK") },
-                                        colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
-                                        shape = RoundedCornerShape(6.dp),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                    ) {
-                                        Text("Move to QC", fontSize = 10.sp)
-                                    }
-                                } else if (batch.status == "QUALITY_CHECK") {
-                                    Button(
-                                        onClick = { onUpdateBatchStatus(batch.id, "COMPLETED") },
-                                        colors = ButtonDefaults.buttonColors(containerColor = ForestEmerald),
-                                        shape = RoundedCornerShape(6.dp),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                                    ) {
-                                        Text("Mark Ready", fontSize = 10.sp)
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    if (batch.status == "IN_PROGRESS") {
+                                        Button(
+                                            onClick = { onUpdateBatchStatus(batch.id, "COMPLETED") },
+                                            colors = ButtonDefaults.buttonColors(containerColor = SuccessGreenDark),
+                                            shape = RoundedCornerShape(6.dp),
+                                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                        ) {
+                                            Text("Complete Batch", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    } else if (batch.status == "PLANNED") {
+                                        Button(
+                                            onClick = { onUpdateBatchStatus(batch.id, "IN_PROGRESS") },
+                                            colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
+                                            shape = RoundedCornerShape(6.dp),
+                                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                        ) {
+                                            Text("Start Run", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
                                     }
                                 }
                             }

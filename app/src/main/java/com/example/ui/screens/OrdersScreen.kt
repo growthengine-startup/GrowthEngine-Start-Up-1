@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,8 +14,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,11 +28,11 @@ import com.example.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-enum class OrderFulfillmentStatus(val label: String, val color: Color) {
-    PENDING("Booking Confirmed", WarningAmber),
-    PACKED("Packed & Ready", ElectricBlue),
-    DISPATCHED("In Transit", GrowthEngineGoldDark),
-    DELIVERED("Delivered", ForestGreen)
+enum class OrderFulfillmentStatus(val label: String, val color: Color, val containerColor: Color) {
+    PENDING("Booking Confirmed", WarningAmber, WarningAmberContainer),
+    PACKED("Packed & Ready", ElectricBlue, Color(0xFFEFF6FF)),
+    DISPATCHED("In Transit", GrowthEngineGoldDark, GrowthEngineGoldContainer),
+    DELIVERED("Delivered", SuccessGreenDark, SuccessGreenContainer)
 }
 
 data class SalesOrderModel(
@@ -58,7 +61,6 @@ fun OrdersScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("ALL") }
 
-    // Derive orders list with dynamic status simulation
     val orders = remember(invoices, customers) {
         val baseOrders = mutableListOf<SalesOrderModel>()
         invoices.forEachIndexed { index, inv ->
@@ -99,25 +101,26 @@ fun OrdersScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onCreateOrderClick,
-                containerColor = ImperialNavy,
-                contentColor = Color.White,
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
                 text = { Text("Book Sales Order", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_create_order")
             )
-        }
+        },
+        containerColor = BackgroundWhite
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(WarmIvoryBackground)
                 .padding(paddingValues)
                 .testTag("orders_screen")
         ) {
             // Header
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -126,31 +129,41 @@ fun OrdersScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
+                            Text(
+                                text = "ORDER MANAGEMENT",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
                             Text(
                                 text = "Sales Orders & Dispatch",
                                 fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = TextPrimary
                             )
                             Text(
-                                text = "$activeCount Orders in Progress • ₹${MainViewModel.formatCurrencyPlain(totalOrderValue)} Total Value",
+                                text = "$activeCount Orders Active • ₹${MainViewModel.formatCurrencyPlain(totalOrderValue)} Total Value",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
                         }
 
                         Surface(
-                            color = ElectricBlue.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = Color(0xFFEFF6FF),
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBFDBFE)),
+                            modifier = Modifier.padding(start = 8.dp)
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                Icon(Icons.Default.LocalShipping, contentDescription = null, tint = ElectricBlue, modifier = Modifier.size(14.dp))
-                                Text("Dispatch Tracking", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ElectricBlue)
+                                Icon(Icons.Default.LocalShipping, contentDescription = null, tint = ElectricBlue, modifier = Modifier.size(13.dp))
+                                Text("Dispatch Hub", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ElectricBlue)
                             }
                         }
                     }
@@ -175,10 +188,10 @@ fun OrdersScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ImperialNavy,
+                            focusedBorderColor = DarkInk,
                             unfocusedBorderColor = BorderSubtle,
-                            focusedContainerColor = BackgroundWhite,
-                            unfocusedContainerColor = BackgroundWhite
+                            focusedContainerColor = SurfaceWhite,
+                            unfocusedContainerColor = SurfaceWhite
                         )
                     )
 
@@ -189,13 +202,21 @@ fun OrdersScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         listOf("ALL" to "All Orders", "ACTIVE" to "Active / In-Fulfillment", "DELIVERED" to "Delivered").forEach { (key, label) ->
+                            val isSelected = selectedFilter == key
                             FilterChip(
-                                selected = selectedFilter == key,
+                                selected = isSelected,
                                 onClick = { selectedFilter = key },
                                 label = { Text(label, fontSize = 11.sp) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = ImperialNavy,
-                                    selectedLabelColor = Color.White
+                                    selectedContainerColor = DarkInk,
+                                    selectedLabelColor = Color.White,
+                                    containerColor = SurfaceSubtle,
+                                    labelColor = TextPrimary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSelected,
+                                    borderColor = if (isSelected) DarkInk else BorderSubtle
                                 )
                             )
                         }
@@ -214,15 +235,24 @@ fun OrdersScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.Assignment, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(56.dp))
-                        Text("No Sales Orders Found", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkInk)
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(SurfaceSubtle)
+                                .border(1.dp, BorderSubtle, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Assignment, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(24.dp))
+                        }
+                        Text("No Sales Orders Found", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextPrimary)
                         Text("Create a new sales order to track order booking, packing, dispatch, and delivery milestones.", fontSize = 12.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 90.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredOrders, key = { it.id }) { order ->
@@ -254,7 +284,7 @@ fun SalesOrderCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
         modifier = Modifier
             .fillMaxWidth()
@@ -272,7 +302,7 @@ fun SalesOrderCard(
                         text = order.customerName,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = DarkInk
+                        color = TextPrimary
                     )
                     Text(
                         text = "${order.orderNumber} • Target: ${order.deliveryDate}",
@@ -282,8 +312,9 @@ fun SalesOrderCard(
                 }
 
                 Surface(
-                    color = order.status.color.copy(alpha = 0.15f),
-                    shape = RoundedCornerShape(6.dp)
+                    color = order.status.containerColor,
+                    shape = RoundedCornerShape(6.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, order.status.color.copy(alpha = 0.5f))
                 ) {
                     Text(
                         text = order.status.label.uppercase(),
@@ -300,12 +331,12 @@ fun SalesOrderCard(
             Text(
                 text = order.itemsSummary,
                 fontSize = 12.sp,
-                color = DarkInk.copy(alpha = 0.85f),
+                color = TextSecondary,
                 maxLines = 2
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = BorderLight)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -319,14 +350,14 @@ fun SalesOrderCard(
                         "₹${MainViewModel.formatCurrencyPlain(order.totalAmount)}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = ImperialNavy
+                        color = DarkInk
                     )
                 }
 
                 if (order.status != OrderFulfillmentStatus.DELIVERED) {
                     Button(
                         onClick = onNextStatus,
-                        colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                        colors = ButtonDefaults.buttonColors(containerColor = DarkInk, contentColor = Color.White),
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
@@ -338,7 +369,8 @@ fun SalesOrderCard(
                                 OrderFulfillmentStatus.DELIVERED -> "Completed"
                             },
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
                     }
                 } else {
@@ -346,8 +378,8 @@ fun SalesOrderCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(16.dp))
-                        Text("Fulfilled", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = SuccessGreenDark, modifier = Modifier.size(16.dp))
+                        Text("Fulfilled", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = SuccessGreenDark)
                     }
                 }
             }

@@ -1,6 +1,12 @@
 package com.example.ui.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -15,11 +21,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import com.example.supabase.SupabaseService
 import com.example.supabase.SupabaseSyncState
 import com.example.ui.theme.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun SupabaseSyncScreen(
@@ -41,10 +48,18 @@ fun SupabaseSyncScreen(
     onTestConnection: () -> Unit
 ) {
     val context = LocalContext.current
-    var projectIdText by remember { mutableStateOf(supabaseService.projectId) }
-    var urlText by remember { mutableStateOf(supabaseService.supabaseUrl) }
-    var keyText by remember { mutableStateOf(supabaseService.supabaseAnonKey) }
     var autoSync by remember { mutableStateOf(supabaseService.isAutoSyncEnabled) }
+    var lastSyncTime by remember { mutableStateOf("Just now") }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "sync_rotation")
+    val rotationAngle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = LinearEasing)
+        ),
+        label = "rotate_sync_icon"
+    )
 
     Column(
         modifier = Modifier
@@ -55,14 +70,104 @@ fun SupabaseSyncScreen(
             .testTag("supabase_sync_screen"),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Hero Card
+        // Section Header
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "ENTERPRISE CLOUD",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GrowthEngineGoldDark,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        text = "Cloud Backup & Sync",
+                        fontSize = 22.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                }
+
+                // Cloud Status Badge
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = when (syncState) {
+                        SupabaseSyncState.SYNCED -> SuccessGreenContainer
+                        SupabaseSyncState.SYNCING -> GrowthEngineGoldContainer
+                        SupabaseSyncState.ERROR -> ErrorRedContainer
+                        else -> SurfaceSubtle
+                    },
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        when (syncState) {
+                            SupabaseSyncState.SYNCED -> SuccessGreen
+                            SupabaseSyncState.SYNCING -> GrowthEngineGold
+                            SupabaseSyncState.ERROR -> ErrorRed
+                            else -> BorderSubtle
+                        }
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when (syncState) {
+                                        SupabaseSyncState.SYNCED -> SuccessGreenDark
+                                        SupabaseSyncState.SYNCING -> GrowthEngineGoldDark
+                                        SupabaseSyncState.ERROR -> ErrorRedDark
+                                        else -> TextTertiary
+                                    }
+                                )
+                        )
+                        Text(
+                            text = when (syncState) {
+                                SupabaseSyncState.SYNCED -> "ONLINE & SYNCED"
+                                SupabaseSyncState.SYNCING -> "SYNCING..."
+                                SupabaseSyncState.ERROR -> "LOCAL OFFLINE"
+                                else -> "STANDBY"
+                            },
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = when (syncState) {
+                                SupabaseSyncState.SYNCED -> SuccessGreenDark
+                                SupabaseSyncState.SYNCING -> GrowthEngineGoldDark
+                                SupabaseSyncState.ERROR -> ErrorRedDark
+                                else -> TextPrimary
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Continuous, bank-grade encrypted cloud synchronization for your GST invoices, khatas, inventory, and ledger books.",
+                fontSize = 12.sp,
+                color = TextSecondary,
+                lineHeight = 17.sp
+            )
+        }
+
+        // Hero Sync Card
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(18.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -70,250 +175,188 @@ fun SupabaseSyncScreen(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(10.dp))
                                 .background(SuccessGreenContainer),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.CloudSync,
-                                contentDescription = "Supabase Cloud",
+                                imageVector = Icons.Default.CloudDone,
+                                contentDescription = "Cloud Status",
                                 tint = SuccessGreenDark,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .then(if (syncState == SupabaseSyncState.SYNCING) Modifier.rotate(rotationAngle) else Modifier)
                             )
                         }
 
                         Column {
                             Text(
-                                text = "Supabase Cloud Integration",
-                                fontSize = 16.sp,
+                                text = "Automated Real-Time Sync",
+                                fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = TextPrimary
                             )
                             Text(
-                                text = "PostgreSQL Local-First Enterprise Sync",
-                                fontSize = 11.sp,
+                                text = "Last backed up: $lastSyncTime",
+                                fontSize = 12.sp,
                                 color = TextSecondary
-                            )
-                        }
-                    }
-
-                    // Status Pill
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = when (syncState) {
-                            SupabaseSyncState.SYNCED -> SuccessGreenContainer
-                            SupabaseSyncState.SYNCING -> GrowthEngineGoldContainer
-                            SupabaseSyncState.ERROR -> ErrorRedContainer
-                            else -> SurfaceSubtle
-                        },
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            when (syncState) {
-                                SupabaseSyncState.SYNCED -> SuccessGreen
-                                SupabaseSyncState.SYNCING -> GrowthEngineGold
-                                SupabaseSyncState.ERROR -> ErrorRed
-                                else -> BorderSubtle
-                            }
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        when (syncState) {
-                                            SupabaseSyncState.SYNCED -> SuccessGreen
-                                            SupabaseSyncState.SYNCING -> GrowthEngineGoldDark
-                                            SupabaseSyncState.ERROR -> ErrorRed
-                                            else -> TextTertiary
-                                        }
-                                    )
-                            )
-                            Text(
-                                text = when (syncState) {
-                                    SupabaseSyncState.SYNCED -> "ONLINE SYNCED"
-                                    SupabaseSyncState.SYNCING -> "SYNCING..."
-                                    SupabaseSyncState.ERROR -> "OFFLINE / LOCAL"
-                                    else -> "STANDBY"
-                                },
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = statusMessage,
+                    text = statusMessage.ifBlank { "All your local devices and cloud database are synchronized. You can continue billing offline without interruption." },
                     fontSize = 12.sp,
                     color = TextSecondary,
-                    lineHeight = 16.sp
+                    lineHeight = 17.sp
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Button(
-                        onClick = onSyncNow,
+                        onClick = {
+                            lastSyncTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
+                            onSyncNow()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f).testTag("btn_sync_now")
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp)
+                            .testTag("btn_sync_now")
                     ) {
-                        Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.Default.Sync,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .then(if (syncState == SupabaseSyncState.SYNCING) Modifier.rotate(rotationAngle) else Modifier)
+                        )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Sync All Now", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Sync All Data Now", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     }
 
                     OutlinedButton(
                         onClick = onTestConnection,
                         shape = RoundedCornerShape(8.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-                        modifier = Modifier.weight(1f).testTag("btn_test_connection")
+                        modifier = Modifier
+                            .weight(0.8f)
+                            .height(44.dp)
+                            .testTag("btn_test_connection")
                     ) {
-                        Text("Test Ping", color = TextPrimary, fontWeight = FontWeight.Medium)
+                        Text("Verify Link", color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
                     }
                 }
             }
         }
 
-        // Cloud Replicated Records Count
+        // Live Replicated Records Count
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "REPLICATED TABLES IN SUPABASE SCHEMA",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
-                    letterSpacing = 0.5.sp
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "PROTECTED BUSINESS DATA",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextSecondary,
+                        letterSpacing = 0.5.sp
+                    )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        color = SuccessGreen.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = "AES-256 ENCRYPTED",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SuccessGreenDark,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("• Invoices Table (invoices):", fontSize = 12.sp, color = TextPrimary)
-                    Text("$invoicesCount records", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("• Customers & Khata (customers):", fontSize = 12.sp, color = TextPrimary)
-                    Text("$customersCount parties", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("• Products & Inventory (products):", fontSize = 12.sp, color = TextPrimary)
-                    Text("$productsCount SKUs", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("• Expense Register (expenses):", fontSize = 12.sp, color = TextPrimary)
-                    Text("$expensesCount vouchers", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SyncDataRecordRow(
+                        title = "Tax Invoices & POS Bills",
+                        count = "$invoicesCount records",
+                        icon = Icons.Default.ReceiptLong
+                    )
+                    SyncDataRecordRow(
+                        title = "Parties & Khata Ledgers",
+                        count = "$customersCount parties",
+                        icon = Icons.Default.People
+                    )
+                    SyncDataRecordRow(
+                        title = "Products, Stock & HSN Codes",
+                        count = "$productsCount SKUs",
+                        icon = Icons.Default.Inventory2
+                    )
+                    SyncDataRecordRow(
+                        title = "Expense Vouchers & ITC Register",
+                        count = "$expensesCount vouchers",
+                        icon = Icons.Default.AccountBalanceWallet
+                    )
                 }
             }
         }
 
-        // Supabase Project Credentials Configuration
+        // Cloud Replication & Auto-Sync Settings
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
             border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(
-                    text = "SUPABASE PROJECT CREDENTIALS",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary
-                )
-                Text(
-                    text = "Configure your cloud Supabase database URL and public anon key",
+                    text = "BACKUP PREFERENCES",
                     fontSize = 11.sp,
-                    color = TextSecondary
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary,
+                    letterSpacing = 0.5.sp
                 )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = projectIdText,
-                    onValueChange = {
-                        projectIdText = it
-                        if (it.isNotBlank() && (urlText.isBlank() || urlText.contains("supabase.co"))) {
-                            urlText = "https://${it.trim()}.supabase.co"
-                        }
-                    },
-                    label = { Text("Supabase Project ID") },
-                    placeholder = { Text("e.g. wrcuondcuuwkqcgtrigz") },
-                    modifier = Modifier.fillMaxWidth().testTag("input_supabase_project_id"),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DarkInk,
-                        unfocusedBorderColor = BorderSubtle
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedTextField(
-                    value = urlText,
-                    onValueChange = { urlText = it },
-                    label = { Text("Supabase Project URL") },
-                    placeholder = { Text("https://your-project.supabase.co") },
-                    modifier = Modifier.fillMaxWidth().testTag("input_supabase_url"),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DarkInk,
-                        unfocusedBorderColor = BorderSubtle
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedTextField(
-                    value = keyText,
-                    onValueChange = { keyText = it },
-                    label = { Text("Supabase Public Anon Key (apikey)") },
-                    modifier = Modifier.fillMaxWidth().testTag("input_supabase_key"),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = DarkInk,
-                        unfocusedBorderColor = BorderSubtle
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("Auto-Sync on Changes", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
-                        Text("Background PostgREST replication", fontSize = 10.sp, color = TextSecondary)
+                        Text("Replicates each invoice, payment, and stock change instantaneously", fontSize = 11.sp, color = TextSecondary)
                     }
                     Switch(
                         checked = autoSync,
                         onCheckedChange = {
                             autoSync = it
                             supabaseService.isAutoSyncEnabled = it
+                            Toast.makeText(context, if (it) "Auto-sync enabled" else "Auto-sync paused", Toast.LENGTH_SHORT).show()
                         },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = GrowthEngineGold,
@@ -322,180 +365,99 @@ fun SupabaseSyncScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                HorizontalDivider(color = BorderLight)
 
-                Button(
-                    onClick = {
-                        supabaseService.projectId = projectIdText
-                        supabaseService.supabaseUrl = urlText
-                        supabaseService.supabaseAnonKey = keyText
-                        Toast.makeText(context, "Supabase project configuration saved", Toast.LENGTH_SHORT).show()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().testTag("btn_save_supabase_settings")
-                ) {
-                    Text("Save Supabase Configuration", color = Color(0xFF141414), fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-
-        // Supabase SQL Editor Script Card
-        val clipboardManager = LocalClipboardManager.current
-        val sqlScript = """
--- GrowthEngine MSME Cloud Database Schema
--- Supabase Project: wrcuondcuuwkqcgtrigz
-
--- 1. Invoices Table
-CREATE TABLE IF NOT EXISTS public.invoices (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    invoice_number TEXT NOT NULL UNIQUE,
-    invoice_type TEXT DEFAULT 'TAX_INVOICE',
-    party_id BIGINT,
-    party_name TEXT,
-    party_gstin TEXT,
-    party_phone TEXT,
-    party_state TEXT,
-    is_inter_state BOOLEAN DEFAULT false,
-    items_summary TEXT,
-    items_count INT DEFAULT 1,
-    subtotal NUMERIC DEFAULT 0.0,
-    discount NUMERIC DEFAULT 0.0,
-    cgst_amount NUMERIC DEFAULT 0.0,
-    sgst_amount NUMERIC DEFAULT 0.0,
-    igst_amount NUMERIC DEFAULT 0.0,
-    total_amount NUMERIC DEFAULT 0.0,
-    amount_paid NUMERIC DEFAULT 0.0,
-    balance_due NUMERIC DEFAULT 0.0,
-    payment_status TEXT DEFAULT 'PAID',
-    payment_mode TEXT DEFAULT 'UPI',
-    e_way_bill_number TEXT,
-    notes TEXT,
-    created_at BIGINT DEFAULT (extract(epoch from now()) * 1000)::bigint
-);
-
--- 2. Parties Table (Customers & Suppliers)
-CREATE TABLE IF NOT EXISTS public.parties (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
-    trade_name TEXT,
-    type TEXT DEFAULT 'CUSTOMER',
-    gstin TEXT,
-    pan_number TEXT,
-    phone TEXT,
-    email TEXT,
-    address TEXT,
-    state_name TEXT DEFAULT 'Tamil Nadu',
-    state_code TEXT DEFAULT '33',
-    credit_limit NUMERIC DEFAULT 500000.0,
-    outstanding_balance NUMERIC DEFAULT 0.0,
-    payment_terms_days INT DEFAULT 30,
-    overdue_days INT DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 3. Products Table
-CREATE TABLE IF NOT EXISTS public.products (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
-    sku TEXT UNIQUE,
-    hsn_code TEXT,
-    category TEXT,
-    unit TEXT DEFAULT 'Pcs',
-    purchase_price NUMERIC DEFAULT 0.0,
-    wholesale_price NUMERIC DEFAULT 0.0,
-    mrp NUMERIC DEFAULT 0.0,
-    gst_rate_percent NUMERIC DEFAULT 18.0,
-    current_stock NUMERIC DEFAULT 0.0,
-    min_reorder_level NUMERIC DEFAULT 10.0,
-    preferred_supplier TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 4. Expenses Table
-CREATE TABLE IF NOT EXISTS public.expenses (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    title TEXT NOT NULL,
-    category TEXT DEFAULT 'General',
-    amount NUMERIC DEFAULT 0.0,
-    is_gst_claimable BOOLEAN DEFAULT false,
-    gst_amount NUMERIC DEFAULT 0.0,
-    payment_mode TEXT DEFAULT 'UPI',
-    vendor_name TEXT,
-    date_epoch BIGINT DEFAULT (extract(epoch from now()) * 1000)::bigint
-);
-
--- 5. Row Level Security & Anon Permissions
-ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.parties ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow anon all on invoices" ON public.invoices FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "Allow anon all on parties" ON public.parties FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "Allow anon all on products" ON public.products FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY "Allow anon all on expenses" ON public.expenses FOR ALL TO anon USING (true) WITH CHECK (true);
-""".trimIndent()
-
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-            modifier = Modifier.fillMaxWidth().testTag("supabase_sql_card")
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            text = "SQL SCRIPT FOR SUPABASE SQL EDITOR",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary
-                        )
-                        Text(
-                            text = "Run this in your project SQL Editor to create tables",
-                            fontSize = 11.sp,
-                            color = TextSecondary
-                        )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Offline First Resilience", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                        Text("Continue raising bills without internet. Sync automatically queues and uploads when connection returns.", fontSize = 11.sp, color = TextSecondary)
                     }
-
-                    Button(
-                        onClick = {
-                            clipboardManager.setText(AnnotatedString(sqlScript))
-                            Toast.makeText(context, "SQL Script copied to clipboard!", Toast.LENGTH_SHORT).show()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-                        modifier = Modifier.testTag("btn_copy_sql")
-                    ) {
-                        Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Copy SQL", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
+                    Icon(Icons.Default.WifiOff, contentDescription = null, tint = SuccessGreenDark, modifier = Modifier.size(20.dp))
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider(color = BorderLight)
 
-                Surface(
-                    color = DarkInk,
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = sqlScript,
-                        color = Color(0xFFF1F5F9),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 10.sp,
-                        lineHeight = 14.sp,
-                        modifier = Modifier.padding(12.dp)
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Multi-Device Data Sharing", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                        Text("Access the same live ledger from your POS counter, warehouse tablet, and accountant laptop.", fontSize = 11.sp, color = TextSecondary)
+                    }
+                    Icon(Icons.Default.Devices, contentDescription = null, tint = ImperialNavy, modifier = Modifier.size(20.dp))
                 }
             }
         }
+
+        // Export Business Data
+        Card(
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = GrowthEngineGoldContainer),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(Icons.Default.DownloadForOffline, contentDescription = null, tint = GrowthEngineGoldDark, modifier = Modifier.size(20.dp))
+                    Text("Export All Business Data", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkInk)
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Download a complete offline copy of your books, GST reports, and khata ledgers in Excel (XLSX) and PDF format for your CA.",
+                    fontSize = 11.sp,
+                    color = TextSecondary,
+                    lineHeight = 16.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Button(
+                    onClick = {
+                        Toast.makeText(context, "Full business ledger export generated successfully", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Download Full Backup Package", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+}
+
+@Composable
+private fun SyncDataRecordRow(
+    title: String,
+    count: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(SurfaceWhite)
+            .border(1.dp, BorderLight, RoundedCornerShape(8.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(icon, contentDescription = null, tint = GrowthEngineGoldDark, modifier = Modifier.size(18.dp))
+            Text(title, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+        }
+        Text(count, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
     }
 }

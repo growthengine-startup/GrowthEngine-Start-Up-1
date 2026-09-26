@@ -21,9 +21,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,7 +55,6 @@ fun CustomersScreen(
     // If a customer is opened, render the Isolated Customer Profile & Ledger screen
     if (selectedCustomerProfile != null) {
         val activeCustomer = selectedCustomerProfile!!
-        // Re-read active customer from source list in case balance was updated
         val currentCustomer = customers.find { it.id == activeCustomer.id } ?: activeCustomer
 
         IsolatedCustomerProfileScreen(
@@ -93,25 +94,26 @@ fun CustomersScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddNewCustomer,
-                containerColor = ImperialNavy,
-                contentColor = Color.White,
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
                 icon = { Icon(Icons.Default.PersonAdd, contentDescription = null) },
                 text = { Text("Add Customer", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_add_customer")
             )
-        }
+        },
+        containerColor = BackgroundWhite
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(WarmIvoryBackground)
                 .padding(paddingValues)
                 .testTag("customers_screen")
         ) {
             // Header
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -120,34 +122,44 @@ fun CustomersScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
+                            Text(
+                                text = "PARTIES & KHATA",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
                             Text(
                                 text = "Customers & Receivables",
                                 fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = TextPrimary
                             )
                             Text(
-                                text = "${customers.size} Total Accounts • $overdueCustomersCount Overdue",
+                                text = "${customers.size} Accounts • $overdueCustomersCount Overdue",
                                 fontSize = 12.sp,
                                 color = TextSecondary
                             )
                         }
 
                         Surface(
-                            color = TerracottaRed.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = ErrorRedContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, ErrorRed.copy(alpha = 0.3f)),
+                            modifier = Modifier.padding(start = 8.dp)
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                                 horizontalAlignment = Alignment.End
                             ) {
-                                Text("Total Pending", fontSize = 10.sp, color = TextSecondary)
+                                Text("Total Udhaar", fontSize = 9.sp, color = TextSecondary)
                                 Text(
                                     "₹${MainViewModel.formatCurrencyPlain(totalReceivable)}",
-                                    fontSize = 14.sp,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TerracottaRed
+                                    color = ErrorRedDark
                                 )
                             }
                         }
@@ -173,10 +185,10 @@ fun CustomersScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ImperialNavy,
+                            focusedBorderColor = DarkInk,
                             unfocusedBorderColor = BorderSubtle,
-                            focusedContainerColor = BackgroundWhite,
-                            unfocusedContainerColor = BackgroundWhite
+                            focusedContainerColor = SurfaceWhite,
+                            unfocusedContainerColor = SurfaceWhite
                         )
                     )
 
@@ -187,13 +199,21 @@ fun CustomersScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         listOf("ALL" to "All (${customers.size})", "OVERDUE" to "Overdue ($overdueCustomersCount)", "PENDING" to "Has Balance", "CLEAR" to "Settled").forEach { (key, label) ->
+                            val isSelected = filterType == key
                             FilterChip(
-                                selected = filterType == key,
+                                selected = isSelected,
                                 onClick = { filterType = key },
                                 label = { Text(label, fontSize = 11.sp) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = ImperialNavy,
-                                    selectedLabelColor = Color.White
+                                    selectedContainerColor = DarkInk,
+                                    selectedLabelColor = Color.White,
+                                    containerColor = SurfaceSubtle,
+                                    labelColor = TextPrimary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSelected,
+                                    borderColor = if (isSelected) DarkInk else BorderSubtle
                                 )
                             )
                         }
@@ -212,15 +232,24 @@ fun CustomersScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.People, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(56.dp))
-                        Text("No Customers Found", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkInk)
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(SurfaceSubtle)
+                                .border(1.dp, BorderSubtle, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.People, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(24.dp))
+                        }
+                        Text("No Customers Found", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextPrimary)
                         Text("Add customer profiles to track credit limits, generate GST invoices, and maintain digital khata ledgers.", fontSize = 12.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 90.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredCustomers, key = { it.id }) { customer ->
@@ -246,7 +275,7 @@ fun CustomerListItemCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
         modifier = Modifier
             .fillMaxWidth()
@@ -265,15 +294,16 @@ fun CustomerListItemCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Surface(
-                        color = ImperialNavy.copy(alpha = 0.1f),
+                        color = GrowthEngineGoldContainer,
                         shape = CircleShape,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder),
                         modifier = Modifier.size(40.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
                                 text = customer.name.take(2).uppercase(),
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy,
+                                color = GrowthEngineGoldDark,
                                 fontSize = 14.sp
                             )
                         }
@@ -284,7 +314,7 @@ fun CustomerListItemCard(
                             text = customer.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
-                            color = DarkInk
+                            color = TextPrimary
                         )
                         if (customer.tradeName.isNotBlank() && customer.tradeName != customer.name) {
                             Text(
@@ -296,7 +326,7 @@ fun CustomerListItemCard(
                         Text(
                             text = "GSTIN: ${if (customer.gstin.isNotBlank()) customer.gstin else "Unregistered"} • ${customer.phone}",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = TextTertiary
                         )
                     }
                 }
@@ -306,7 +336,7 @@ fun CustomerListItemCard(
                         text = "₹${MainViewModel.formatCurrencyPlain(customer.outstandingBalance)}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = if (customer.outstandingBalance > 0) TerracottaRed else ForestGreen
+                        color = if (customer.outstandingBalance > 0) ErrorRedDark else SuccessGreenDark
                     )
                     Text(
                         text = if (customer.outstandingBalance > 0) "Pending" else "Settled",
@@ -319,8 +349,9 @@ fun CustomerListItemCard(
             if (customer.overdueDays > 0) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(
-                    color = ErrorRed.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(6.dp)
+                    color = ErrorRedContainer,
+                    shape = RoundedCornerShape(6.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, ErrorRed.copy(alpha = 0.3f))
                 ) {
                     Row(
                         modifier = Modifier
@@ -333,25 +364,25 @@ fun CustomerListItemCard(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Icon(Icons.Default.Warning, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(13.dp))
+                            Icon(Icons.Default.Warning, contentDescription = null, tint = ErrorRedDark, modifier = Modifier.size(13.dp))
                             Text(
                                 text = "Overdue by ${customer.overdueDays} days",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = ErrorRed
+                                color = ErrorRedDark
                             )
                         }
                         Text(
                             text = "Terms: ${customer.paymentTermsDays} Days",
                             fontSize = 10.sp,
-                            color = DarkInk
+                            color = TextPrimary
                         )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = BorderLight)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -370,28 +401,30 @@ fun CustomerListItemCard(
                         OutlinedButton(
                             onClick = onSendWhatsApp,
                             shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen),
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(12.dp))
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, tint = SuccessGreenDark, modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Reminder", fontSize = 11.sp, color = ForestGreen)
+                            Text("Reminder", fontSize = 11.sp, color = SuccessGreenDark, fontWeight = FontWeight.Bold)
                         }
 
                         Button(
                             onClick = onRecordPayment,
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                            colors = ButtonDefaults.buttonColors(containerColor = DarkInk, contentColor = Color.White),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                         ) {
-                            Text("Collect", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("Collect", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     } else {
                         OutlinedButton(
                             onClick = onClick,
                             shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                         ) {
-                            Text("View Khata", fontSize = 11.sp)
+                            Text("View Khata", fontSize = 11.sp, color = DarkInk)
                         }
                     }
                 }
@@ -402,7 +435,6 @@ fun CustomerListItemCard(
 
 /**
  * STRICT ISOLATED CUSTOMER PROFILE & LEDGER VIEW
- * Guarantees zero cross-contamination: Shows ONLY this customer's data and invoices.
  */
 @Composable
 fun IsolatedCustomerProfileScreen(
@@ -420,12 +452,14 @@ fun IsolatedCustomerProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmIvoryBackground)
+            .background(BackgroundWhite)
             .testTag("isolated_customer_profile_${customer.id}")
     ) {
         // Top App Bar for Profile
         Surface(
-            color = ImperialNavy,
+            color = BackgroundWhite,
+            tonalElevation = 2.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -439,43 +473,45 @@ fun IsolatedCustomerProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkInk)
                         }
                         Column {
                             Text(
                                 text = customer.name,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
-                                color = Color.White
+                                color = TextPrimary
                             )
                             Text(
                                 text = if (customer.tradeName.isNotBlank()) customer.tradeName else "Customer Account",
                                 fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.8f)
+                                color = TextSecondary
                             )
                         }
                     }
 
                     Surface(
-                        color = Color.White.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(6.dp)
+                        color = SurfaceSubtle,
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
                     ) {
                         Text(
                             text = "ISOLATED LEDGER",
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = TextSecondary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Customer Financial Header Card
-                Surface(
-                    color = Color.White,
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
                     shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -491,14 +527,14 @@ fun IsolatedCustomerProfileScreen(
                                 "₹${MainViewModel.formatCurrencyPlain(customer.outstandingBalance)}",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (customer.outstandingBalance > 0) TerracottaRed else ForestGreen
+                                color = if (customer.outstandingBalance > 0) ErrorRedDark else SuccessGreenDark
                             )
                             if (customer.overdueDays > 0) {
                                 Text(
                                     "Overdue by ${customer.overdueDays} days",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = ErrorRed
+                                    color = ErrorRedDark
                                 )
                             }
                         }
@@ -529,7 +565,7 @@ fun IsolatedCustomerProfileScreen(
                 ) {
                     Button(
                         onClick = onRecordPayment,
-                        colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGoldContainer, contentColor = DarkInk),
+                        colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold, contentColor = DarkInk),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -540,7 +576,7 @@ fun IsolatedCustomerProfileScreen(
 
                     Button(
                         onClick = onCreateInvoice,
-                        colors = ButtonDefaults.buttonColors(containerColor = ForestGreen, contentColor = Color.White),
+                        colors = ButtonDefaults.buttonColors(containerColor = DarkInk, contentColor = Color.White),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -551,9 +587,9 @@ fun IsolatedCustomerProfileScreen(
 
                     IconButton(
                         onClick = onSendWhatsApp,
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White.copy(alpha = 0.2f))
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = SuccessGreenContainer)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "WhatsApp", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "WhatsApp", tint = SuccessGreenDark)
                     }
                 }
             }
@@ -569,7 +605,7 @@ fun IsolatedCustomerProfileScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
                     border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -578,7 +614,7 @@ fun IsolatedCustomerProfileScreen(
                             text = "PROFILE & COMPLIANCE DETAILS",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ImperialNavy
+                            color = TextPrimary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -602,7 +638,7 @@ fun IsolatedCustomerProfileScreen(
                         text = "Customer Ledger & Invoices (${customerInvoices.size})",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = DarkInk
+                        color = TextPrimary
                     )
 
                     OutlinedButton(
@@ -610,11 +646,12 @@ fun IsolatedCustomerProfileScreen(
                             Toast.makeText(context, "Exported Statement PDF for ${customer.name}", Toast.LENGTH_SHORT).show()
                         },
                         shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Export PDF", fontSize = 11.sp)
+                        Text("Export PDF", fontSize = 11.sp, color = DarkInk)
                     }
                 }
             }
@@ -623,7 +660,7 @@ fun IsolatedCustomerProfileScreen(
                 item {
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
                         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -638,7 +675,7 @@ fun IsolatedCustomerProfileScreen(
                                 verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(36.dp))
-                                Text("No Invoices for this Customer", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkInk)
+                                Text("No Invoices for this Customer", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
                                 Text("Tap 'New Invoice' above to issue the first tax invoice for ${customer.name}.", fontSize = 12.sp, color = TextSecondary)
                             }
                         }
@@ -665,7 +702,7 @@ fun InfoRow(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, fontSize = 11.sp, color = TextSecondary)
-        Text(value, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = DarkInk)
+        Text(value, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
     }
 }
 
@@ -677,7 +714,7 @@ fun CustomerIsolatedInvoiceCard(
     val dateStr = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH).format(Date(invoice.dateEpoch))
     Card(
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
         modifier = Modifier
             .fillMaxWidth()
@@ -696,7 +733,7 @@ fun CustomerIsolatedInvoiceCard(
                     text = invoice.invoiceNumber,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = ImperialNavy
+                    color = TextPrimary
                 )
                 Text(
                     text = "$dateStr • ${invoice.itemsCount} Items",
@@ -706,7 +743,7 @@ fun CustomerIsolatedInvoiceCard(
                 Text(
                     text = invoice.itemsSummary,
                     fontSize = 11.sp,
-                    color = DarkInk.copy(alpha = 0.8f),
+                    color = TextSecondary,
                     maxLines = 1
                 )
             }
@@ -720,20 +757,25 @@ fun CustomerIsolatedInvoiceCard(
                 )
                 Surface(
                     color = when (invoice.paymentStatus) {
-                        "PAID" -> ForestGreen.copy(alpha = 0.15f)
-                        "PARTIAL" -> WarningAmber.copy(alpha = 0.15f)
-                        else -> TerracottaRed.copy(alpha = 0.15f)
+                        "PAID" -> SuccessGreenContainer
+                        "PARTIAL" -> WarningAmberContainer
+                        else -> ErrorRedContainer
                     },
-                    shape = RoundedCornerShape(4.dp)
+                    shape = RoundedCornerShape(4.dp),
+                    border = androidx.compose.foundation.BorderStroke(0.5.dp, when (invoice.paymentStatus) {
+                        "PAID" -> SuccessGreen
+                        "PARTIAL" -> WarningAmber
+                        else -> ErrorRed
+                    })
                 ) {
                     Text(
                         text = invoice.paymentStatus,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
                         color = when (invoice.paymentStatus) {
-                            "PAID" -> ForestGreen
+                            "PAID" -> SuccessGreenDark
                             "PARTIAL" -> WarningAmber
-                            else -> TerracottaRed
+                            else -> ErrorRedDark
                         },
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )

@@ -22,7 +22,7 @@ fun MetricCard(
     value: String,
     subtitle: String,
     icon: ImageVector,
-    accentColor: Color = RoyalTeakGold,
+    accentColor: Color = GrowthEngineGold,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
@@ -30,9 +30,9 @@ fun MetricCard(
         onClick = { onClick?.invoke() },
         enabled = onClick != null,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
         modifier = modifier
     ) {
         Column(
@@ -49,7 +49,7 @@ fun MetricCard(
                     text = title.uppercase(),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextSecondaryMuted,
+                    color = TextSecondary,
                     letterSpacing = 0.5.sp
                 )
                 Box(
@@ -74,7 +74,7 @@ fun MetricCard(
                 text = value,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimaryDark,
+                color = TextPrimary,
                 letterSpacing = (-0.5).sp
             )
 
@@ -84,7 +84,7 @@ fun MetricCard(
                 text = subtitle,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
-                color = if (subtitle.contains("Overdue") || subtitle.contains("Low Stock")) TerracottaRed else TextSecondaryMuted
+                color = if (subtitle.contains("Overdue") || subtitle.contains("Low Stock")) TerracottaRed else TextSecondary
             )
         }
     }
@@ -99,13 +99,13 @@ fun StatusBadge(
         "PAID" -> Triple(ForestEmeraldContainer, ForestEmerald, "PAID")
         "OVERDUE" -> Triple(TerracottaRedContainer, TerracottaRed, "OVERDUE")
         "UNPAID" -> Triple(Color(0xFFFFF3D6), Color(0xFF946200), "DUE")
-        "PARTIAL" -> Triple(Color(0xFFE3EDFA), ImperialNavyLight, "PARTIAL")
+        "PARTIAL" -> Triple(Color(0xFFE3EDFA), DarkInk, "PARTIAL")
         "IN_PRODUCTION" -> Triple(Color(0xFFEAF2FD), Color(0xFF1E5BB0), "IN PRODUCTION")
         "COMPLETED" -> Triple(ForestEmeraldContainer, ForestEmerald, "COMPLETED")
         "QUALITY_CHECK" -> Triple(Color(0xFFFBF0DB), Color(0xFF915800), "QC CHECK")
         "LOW_STOCK" -> Triple(TerracottaRedContainer, TerracottaRed, "LOW STOCK")
         "IN_STOCK" -> Triple(ForestEmeraldContainer, ForestEmerald, "IN STOCK")
-        else -> Triple(WarmIvorySurfaceVariant, TextSecondaryMuted, status)
+        else -> Triple(SurfaceSubtle, TextSecondary, status)
     }
 
     Surface(

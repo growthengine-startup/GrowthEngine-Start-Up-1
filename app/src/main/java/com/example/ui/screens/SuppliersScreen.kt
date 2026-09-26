@@ -18,9 +18,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,25 +80,26 @@ fun SuppliersScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onAddNewSupplier,
-                containerColor = ImperialNavy,
-                contentColor = Color.White,
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
                 icon = { Icon(Icons.Default.AddBusiness, contentDescription = null) },
                 text = { Text("Add Supplier", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_add_supplier")
             )
-        }
+        },
+        containerColor = BackgroundWhite
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(WarmIvoryBackground)
                 .padding(paddingValues)
                 .testTag("suppliers_screen")
         ) {
             // Header
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -105,12 +108,20 @@ fun SuppliersScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Text(
-                                text = "Suppliers & Vendors",
-                                fontSize = 20.sp,
+                                text = "PROCUREMENT & VENDORS",
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = "Suppliers & Payables",
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
                             Text(
                                 text = "${suppliers.size} Registered Vendors",
@@ -120,19 +131,21 @@ fun SuppliersScreen(
                         }
 
                         Surface(
-                            color = ImperialNavy.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = SurfaceSubtle,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                            modifier = Modifier.padding(start = 8.dp)
                         ) {
                             Column(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                                 horizontalAlignment = Alignment.End
                             ) {
-                                Text("Total Payables", fontSize = 10.sp, color = TextSecondary)
+                                Text("Total Payables", fontSize = 9.sp, color = TextSecondary)
                                 Text(
                                     "₹${MainViewModel.formatCurrencyPlain(totalPayable)}",
-                                    fontSize = 14.sp,
+                                    fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ImperialNavy
+                                    color = DarkInk
                                 )
                             }
                         }
@@ -146,7 +159,7 @@ fun SuppliersScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("search_supplier_input"),
-                        placeholder = { Text("Search vendor by name, GSTIN, phone...", fontSize = 13.sp) },
+                        placeholder = { Text("Search by name, GSTIN, phone...", fontSize = 13.sp) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
@@ -158,10 +171,10 @@ fun SuppliersScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = ImperialNavy,
+                            focusedBorderColor = DarkInk,
                             unfocusedBorderColor = BorderSubtle,
-                            focusedContainerColor = BackgroundWhite,
-                            unfocusedContainerColor = BackgroundWhite
+                            focusedContainerColor = SurfaceWhite,
+                            unfocusedContainerColor = SurfaceWhite
                         )
                     )
 
@@ -171,14 +184,22 @@ fun SuppliersScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        listOf("ALL" to "All Vendors (${suppliers.size})", "DUE" to "Payable Due", "CLEAR" to "Settled").forEach { (key, label) ->
+                        listOf("ALL" to "All Vendors", "DUE" to "Outstanding Payables", "CLEAR" to "Settled").forEach { (key, label) ->
+                            val isSelected = filterType == key
                             FilterChip(
-                                selected = filterType == key,
+                                selected = isSelected,
                                 onClick = { filterType = key },
                                 label = { Text(label, fontSize = 11.sp) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = ImperialNavy,
-                                    selectedLabelColor = Color.White
+                                    selectedContainerColor = DarkInk,
+                                    selectedLabelColor = Color.White,
+                                    containerColor = SurfaceSubtle,
+                                    labelColor = TextPrimary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    enabled = true,
+                                    selected = isSelected,
+                                    borderColor = if (isSelected) DarkInk else BorderSubtle
                                 )
                             )
                         }
@@ -197,22 +218,32 @@ fun SuppliersScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.LocalShipping, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(56.dp))
-                        Text("No Suppliers Found", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkInk)
-                        Text("Add raw material vendors and suppliers to track payables, payment terms, and inward bills.", fontSize = 12.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(SurfaceSubtle)
+                                .border(1.dp, BorderSubtle, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.LocalShipping, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(24.dp))
+                        }
+                        Text("No Suppliers Found", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextPrimary)
+                        Text("Add vendor profiles to record purchase bills, track input tax credits (ITC), and manage payout schedules.", fontSize = 12.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 90.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredSuppliers, key = { it.id }) { supplier ->
                         SupplierListItemCard(
                             supplier = supplier,
                             onClick = { selectedSupplierProfile = supplier },
-                            onRecordPayout = { onRecordPayout(supplier) }
+                            onRecordPayout = { onRecordPayout(supplier) },
+                            onCreatePurchase = { onCreatePurchaseForSupplier(supplier) }
                         )
                     }
                 }
@@ -225,12 +256,14 @@ fun SuppliersScreen(
 fun SupplierListItemCard(
     supplier: PartyEntity,
     onClick: () -> Unit,
-    onRecordPayout: () -> Unit
+    onRecordPayout: () -> Unit,
+    onCreatePurchase: () -> Unit
 ) {
-    val due = -supplier.outstandingBalance
+    val payableAmt = -supplier.outstandingBalance
+
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
         modifier = Modifier
             .fillMaxWidth()
@@ -249,15 +282,16 @@ fun SupplierListItemCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Surface(
-                        color = ElectricBlue.copy(alpha = 0.1f),
+                        color = SurfaceSubtle,
                         shape = CircleShape,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.size(40.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
                                 text = supplier.name.take(2).uppercase(),
                                 fontWeight = FontWeight.Bold,
-                                color = ElectricBlue,
+                                color = DarkInk,
                                 fontSize = 14.sp
                             )
                         }
@@ -268,25 +302,32 @@ fun SupplierListItemCard(
                             text = supplier.name,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
-                            color = DarkInk
+                            color = TextPrimary
                         )
+                        if (supplier.tradeName.isNotBlank() && supplier.tradeName != supplier.name) {
+                            Text(
+                                text = supplier.tradeName,
+                                fontSize = 12.sp,
+                                color = TextSecondary
+                            )
+                        }
                         Text(
                             text = "GSTIN: ${if (supplier.gstin.isNotBlank()) supplier.gstin else "Unregistered"} • ${supplier.phone}",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = TextTertiary
                         )
                     }
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "₹${MainViewModel.formatCurrencyPlain(due)}",
+                        text = "₹${MainViewModel.formatCurrencyPlain(if (payableAmt > 0) payableAmt else 0.0)}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
-                        color = if (due > 0) ImperialNavy else ForestGreen
+                        color = if (payableAmt > 0) DarkInk else SuccessGreenDark
                     )
                     Text(
-                        text = if (due > 0) "To Pay" else "All Clear",
+                        text = if (payableAmt > 0) "To Pay" else "Settled",
                         fontSize = 10.sp,
                         color = TextSecondary
                     )
@@ -294,7 +335,7 @@ fun SupplierListItemCard(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = BorderLight)
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -303,28 +344,31 @@ fun SupplierListItemCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Credit Limit: ₹${MainViewModel.formatCurrencyPlain(supplier.creditLimit)} • ${supplier.stateName}",
+                    text = "${supplier.stateName} • Code: ${supplier.stateCode}",
                     fontSize = 11.sp,
                     color = TextSecondary
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (due > 0) {
+                    OutlinedButton(
+                        onClick = onCreatePurchase,
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = DarkInk, modifier = Modifier.size(12.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Add Bill", fontSize = 11.sp, color = DarkInk)
+                    }
+
+                    if (payableAmt > 0) {
                         Button(
                             onClick = onRecordPayout,
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                            colors = ButtonDefaults.buttonColors(containerColor = DarkInk, contentColor = Color.White),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 5.dp)
                         ) {
-                            Text("Record Payout", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-                    } else {
-                        OutlinedButton(
-                            onClick = onClick,
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
-                        ) {
-                            Text("View Ledger", fontSize = 11.sp)
+                            Text("Pay Vendor", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }
@@ -334,8 +378,7 @@ fun SupplierListItemCard(
 }
 
 /**
- * STRICT ISOLATED SUPPLIER PROFILE & PAYABLES LEDGER
- * Guarantees zero cross-contamination: Shows ONLY this supplier's payables and inward bills.
+ * STRICT ISOLATED SUPPLIER PROFILE & LEDGER VIEW
  */
 @Composable
 fun IsolatedSupplierProfileScreen(
@@ -345,18 +388,19 @@ fun IsolatedSupplierProfileScreen(
     onCreatePurchase: () -> Unit
 ) {
     BackHandler { onBack() }
-    val due = -supplier.outstandingBalance
     val context = LocalContext.current
+    val payableAmt = -supplier.outstandingBalance
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmIvoryBackground)
+            .background(BackgroundWhite)
             .testTag("isolated_supplier_profile_${supplier.id}")
     ) {
-        // Top App Bar
         Surface(
-            color = ImperialNavy,
+            color = BackgroundWhite,
+            tonalElevation = 2.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -370,43 +414,44 @@ fun IsolatedSupplierProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkInk)
                         }
                         Column {
                             Text(
                                 text = supplier.name,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
-                                color = Color.White
+                                color = TextPrimary
                             )
                             Text(
-                                text = "Supplier & Vendor Account",
+                                text = if (supplier.tradeName.isNotBlank()) supplier.tradeName else "Supplier Account",
                                 fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.8f)
+                                color = TextSecondary
                             )
                         }
                     }
 
                     Surface(
-                        color = Color.White.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(6.dp)
+                        color = SurfaceSubtle,
+                        shape = RoundedCornerShape(6.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
                     ) {
                         Text(
                             text = "VENDOR LEDGER",
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White,
+                            color = TextSecondary,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                // Balance Card
-                Surface(
-                    color = Color.White,
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = SurfaceSubtle),
                     shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -417,22 +462,22 @@ fun IsolatedSupplierProfileScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("Total Payable Due", fontSize = 11.sp, color = TextSecondary)
+                            Text("Total Payable Balance", fontSize = 11.sp, color = TextSecondary)
                             Text(
-                                "₹${MainViewModel.formatCurrencyPlain(due)}",
+                                "₹${MainViewModel.formatCurrencyPlain(if (payableAmt > 0) payableAmt else 0.0)}",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (due > 0) ImperialNavy else ForestGreen
+                                color = if (payableAmt > 0) DarkInk else SuccessGreenDark
                             )
                         }
 
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("Payment Terms", fontSize = 11.sp, color = TextSecondary)
+                            Text("State of Supply", fontSize = 11.sp, color = TextSecondary)
                             Text(
-                                "${supplier.paymentTermsDays} Days",
-                                fontSize = 15.sp,
+                                "${supplier.stateName} (${supplier.stateCode})",
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DarkInk
+                                color = TextPrimary
                             )
                         }
                     }
@@ -440,14 +485,13 @@ fun IsolatedSupplierProfileScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Actions
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = onRecordPayout,
-                        colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGoldContainer, contentColor = DarkInk),
+                        colors = ButtonDefaults.buttonColors(containerColor = DarkInk, contentColor = Color.White),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -458,7 +502,7 @@ fun IsolatedSupplierProfileScreen(
 
                     Button(
                         onClick = onCreatePurchase,
-                        colors = ButtonDefaults.buttonColors(containerColor = ForestGreen, contentColor = Color.White),
+                        colors = ButtonDefaults.buttonColors(containerColor = GrowthEngineGold, contentColor = DarkInk),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -470,7 +514,6 @@ fun IsolatedSupplierProfileScreen(
             }
         }
 
-        // Details
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -479,16 +522,16 @@ fun IsolatedSupplierProfileScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
+                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
                     border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(
-                            text = "SUPPLIER COMPLIANCE & BANK DETAILS",
+                            text = "VENDOR REGISTRATION & TAX INFO",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ImperialNavy
+                            color = TextPrimary
                         )
                         Spacer(modifier = Modifier.height(8.dp))
 
@@ -496,42 +539,7 @@ fun IsolatedSupplierProfileScreen(
                         InfoRow("PAN Number", if (supplier.panNumber.isNotBlank()) supplier.panNumber else "N/A")
                         InfoRow("Phone", supplier.phone)
                         InfoRow("Email", if (supplier.email.isNotBlank()) supplier.email else "N/A")
-                        InfoRow("Vendor Address", "${supplier.address}, ${supplier.stateName} (Code: ${supplier.stateCode})")
-                        InfoRow("Payout Bank", "State Bank of India (A/C: ****4921, IFSC: SBIN0001248)")
-                        InfoRow("Payout UPI ID", "${supplier.phone.filter { it.isDigit() }}@upi")
-                    }
-                }
-            }
-
-            item {
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Recent Inward Purchases", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkInk)
-                            Text("100% Isolated", fontSize = 10.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "PB-2026-502 • Raw MS Plate Castings (₹1,41,600) • Paid",
-                            fontSize = 12.sp,
-                            color = DarkInk
-                        )
-                        Text(
-                            text = "PB-2026-489 • Heavy Tooling Bits & Carbide Inserts (₹98,500) • Paid",
-                            fontSize = 12.sp,
-                            color = TextSecondary
-                        )
+                        InfoRow("Dispatch Origin", "${supplier.address}, ${supplier.stateName}")
                     }
                 }
             }

@@ -42,7 +42,7 @@ fun GstInvoiceDetailDialog(
                 .fillMaxHeight(0.92f)
                 .clip(RoundedCornerShape(16.dp))
                 .testTag("gst_invoice_dialog"),
-            color = WarmIvorySurface,
+            color = SurfaceWhite,
             tonalElevation = 6.dp
         ) {
             Column(
@@ -58,13 +58,13 @@ fun GstInvoiceDetailDialog(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
-                            color = RoyalTeakGoldContainer,
+                            color = GrowthEngineGoldContainer,
                             shape = RoundedCornerShape(4.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, RoyalTeakGold)
+                            border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGold)
                         ) {
                             Text(
                                 text = "TAX INVOICE [RULE 46]",
-                                color = RoyalTeakGoldDark,
+                                color = GrowthEngineGoldDark,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
@@ -82,7 +82,7 @@ fun GstInvoiceDetailDialog(
                             Icon(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = "Share Invoice",
-                                tint = ImperialNavy
+                                tint = DarkInk
                             )
                         }
                         IconButton(
@@ -92,13 +92,13 @@ fun GstInvoiceDetailDialog(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close",
-                                tint = TextSecondaryMuted
+                                tint = TextSecondary
                             )
                         }
                     }
                 }
 
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(vertical = 8.dp))
 
                 // Invoice Document Body (Scrollable)
                 Column(
@@ -109,7 +109,7 @@ fun GstInvoiceDetailDialog(
                     // Supplier Letterhead
                     Card(
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = ImperialNavy),
+                        colors = CardDefaults.cardColors(containerColor = DarkInk),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
@@ -119,7 +119,7 @@ fun GstInvoiceDetailDialog(
                             ) {
                                 Column {
                                     Text(
-                                        text = "KALYAN INDUSTRIAL WORKS",
+                                        text = "GROWTHENGINE INDUSTRIAL WORKS",
                                         color = Color.White,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
@@ -127,7 +127,7 @@ fun GstInvoiceDetailDialog(
                                     )
                                     Text(
                                         text = "Precision Machine Tools & Hydraulic Assemblies",
-                                        color = RoyalTeakGoldLight,
+                                        color = GrowthEngineGold,
                                         fontSize = 11.sp
                                     )
                                     Text(
@@ -144,7 +144,7 @@ fun GstInvoiceDetailDialog(
                             ) {
                                 Text(
                                     text = "GSTIN: 27AABCK4829K1Z5",
-                                    color = RoyalTeakGoldLight,
+                                    color = GrowthEngineGold,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
@@ -163,7 +163,7 @@ fun GstInvoiceDetailDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .border(1.dp, WarmIvoryBorder, RoundedCornerShape(8.dp))
+                            .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp))
                             .padding(10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -172,29 +172,29 @@ fun GstInvoiceDetailDialog(
                                 text = "BILLED TO (BUYER):",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextSecondaryMuted
+                                color = TextSecondary
                             )
                             Text(
                                 text = invoice.partyName,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextPrimaryDark
+                                color = TextPrimary
                             )
                             Text(
                                 text = "GSTIN: ${invoice.partyGstin}",
                                 fontSize = 11.sp,
-                                color = TextPrimaryDark,
+                                color = TextPrimary,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = "Place of Supply: ${invoice.partyState}",
                                 fontSize = 10.sp,
-                                color = TextSecondaryMuted
+                                color = TextSecondary
                             )
                             Text(
                                 text = "Contact: ${invoice.partyPhone}",
                                 fontSize = 10.sp,
-                                color = TextSecondaryMuted
+                                color = TextSecondary
                             )
                         }
 
@@ -206,23 +206,23 @@ fun GstInvoiceDetailDialog(
                                 text = "INVOICE DETAILS:",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextSecondaryMuted
+                                color = TextSecondary
                             )
                             Text(
                                 text = invoice.invoiceNumber,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = DarkInk
                             )
                             Text(
                                 text = "Date: ${MainViewModel.formatDate(invoice.dateEpoch)}",
                                 fontSize = 10.sp,
-                                color = TextPrimaryDark
+                                color = TextPrimary
                             )
                             Text(
                                 text = "Due: ${MainViewModel.formatDate(invoice.dueDateEpoch)}",
                                 fontSize = 10.sp,
-                                color = if (invoice.paymentStatus == "OVERDUE") TerracottaRed else TextPrimaryDark,
+                                color = if (invoice.paymentStatus == "OVERDUE") TerracottaRed else TextPrimary,
                                 fontWeight = if (invoice.paymentStatus == "OVERDUE") FontWeight.Bold else FontWeight.Normal
                             )
                             if (!invoice.eWayBillNumber.isNullOrBlank()) {
@@ -240,9 +240,9 @@ fun GstInvoiceDetailDialog(
 
                     // Line Items Table
                     Surface(
-                        color = WarmIvorySurfaceVariant,
+                        color = SurfaceSubtle,
                         shape = RoundedCornerShape(8.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
@@ -250,7 +250,7 @@ fun GstInvoiceDetailDialog(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(ImperialNavyLight.copy(alpha = 0.08f), RoundedCornerShape(4.dp))
+                                    .background(DarkInk.copy(alpha = 0.08f), RoundedCornerShape(4.dp))
                                     .padding(horizontal = 6.dp, vertical = 6.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -258,14 +258,14 @@ fun GstInvoiceDetailDialog(
                                     text = "Item Description",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimaryDark,
+                                    color = TextPrimary,
                                     modifier = Modifier.weight(1.8f)
                                 )
                                 Text(
                                     text = "Qty",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimaryDark,
+                                    color = TextPrimary,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.weight(0.5f)
                                 )
@@ -273,7 +273,7 @@ fun GstInvoiceDetailDialog(
                                     text = "Taxable",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimaryDark,
+                                    color = TextPrimary,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.weight(0.9f)
                                 )
@@ -281,7 +281,7 @@ fun GstInvoiceDetailDialog(
                                     text = "Tax",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimaryDark,
+                                    color = TextPrimary,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.weight(0.8f)
                                 )
@@ -301,12 +301,12 @@ fun GstInvoiceDetailDialog(
                                         text = invoice.itemsSummary,
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = TextPrimaryDark
+                                        color = TextPrimary
                                     )
                                     Text(
                                         text = "HSN/SAC: 8482 / 8412 • Rate: 18%",
                                         fontSize = 9.sp,
-                                        color = TextSecondaryMuted
+                                        color = TextSecondary
                                     )
                                 }
                                 Text(
@@ -325,7 +325,7 @@ fun GstInvoiceDetailDialog(
                                     text = "₹${MainViewModel.formatCurrencyPlain(invoice.cgstAmount + invoice.sgstAmount + invoice.igstAmount)}",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = ImperialNavy,
+                                    color = DarkInk,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.weight(0.8f)
                                 )
@@ -338,8 +338,8 @@ fun GstInvoiceDetailDialog(
                     // Tax Summary Breakdown Card
                     Card(
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
@@ -347,7 +347,7 @@ fun GstInvoiceDetailDialog(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Taxable Amount:", fontSize = 11.sp, color = TextSecondaryMuted)
+                                Text("Taxable Amount:", fontSize = 11.sp, color = TextSecondary)
                                 Text("₹${MainViewModel.formatCurrencyPlain(invoice.subtotal)}", fontSize = 11.sp, fontWeight = FontWeight.Medium)
                             }
                             if (!invoice.isInterState) {
@@ -355,14 +355,14 @@ fun GstInvoiceDetailDialog(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text("CGST (9.0%):", fontSize = 11.sp, color = TextSecondaryMuted)
+                                    Text("CGST (9.0%):", fontSize = 11.sp, color = TextSecondary)
                                     Text("₹${MainViewModel.formatCurrencyPlain(invoice.cgstAmount)}", fontSize = 11.sp)
                                 }
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text("SGST (9.0%):", fontSize = 11.sp, color = TextSecondaryMuted)
+                                    Text("SGST (9.0%):", fontSize = 11.sp, color = TextSecondary)
                                     Text("₹${MainViewModel.formatCurrencyPlain(invoice.sgstAmount)}", fontSize = 11.sp)
                                 }
                             } else {
@@ -370,21 +370,21 @@ fun GstInvoiceDetailDialog(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text("IGST (18.0% Inter-state):", fontSize = 11.sp, color = TextSecondaryMuted)
+                                    Text("IGST (18.0% Inter-state):", fontSize = 11.sp, color = TextSecondary)
                                     Text("₹${MainViewModel.formatCurrencyPlain(invoice.igstAmount)}", fontSize = 11.sp)
                                 }
                             }
-                            HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 4.dp))
+                            HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(vertical = 4.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Total Invoice Value (INR):", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
+                                Text("Total Invoice Value (INR):", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                                 Text(
                                     text = "₹${MainViewModel.formatCurrencyPlain(invoice.totalAmount)}",
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = ImperialNavy
+                                    color = GrowthEngineGoldDark
                                 )
                             }
                             Row(
@@ -413,9 +413,9 @@ fun GstInvoiceDetailDialog(
 
                     // Bank Details & UPI Payment QR Box
                     Surface(
-                        color = RoyalTeakGoldContainer,
+                        color = GrowthEngineGoldContainer,
                         shape = RoundedCornerShape(8.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, RoyalTeakGold.copy(alpha = 0.5f)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGold.copy(alpha = 0.5f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -428,25 +428,24 @@ fun GstInvoiceDetailDialog(
                                     text = "BANK SETTLEMENT DETAILS",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = RoyalTeakGoldDark
+                                    color = GrowthEngineGoldDark
                                 )
-                                Text("Bank: State Bank of India (Bhosari Branch)", fontSize = 10.sp, color = TextPrimaryDark)
-                                Text("A/C No: 38492049102 • IFSC: SBIN0004521", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = TextPrimaryDark)
-                                Text("UPI VPA: kalyanworks@sbi", fontSize = 10.sp, color = RoyalTeakGoldDark, fontWeight = FontWeight.Bold)
+                                Text("Bank: HDFC Bank (Industrial Branch)", fontSize = 10.sp, color = TextPrimary)
+                                Text("A/C No: 50200049102 • IFSC: HDFC0001245", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
+                                Text("UPI VPA: growthengine@hdfcbank", fontSize = 10.sp, color = GrowthEngineGoldDark, fontWeight = FontWeight.Bold)
                             }
 
-                            // Dynamic UPI QR Placeholder
                             Box(
                                 modifier = Modifier
                                     .size(54.dp)
                                     .background(Color.White, RoundedCornerShape(6.dp))
-                                    .border(1.dp, RoyalTeakGoldDark, RoundedCornerShape(6.dp)),
+                                    .border(1.dp, GrowthEngineGoldDark, RoundedCornerShape(6.dp)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.QrCode2,
                                     contentDescription = "UPI QR Code",
-                                    tint = ImperialNavy,
+                                    tint = DarkInk,
                                     modifier = Modifier.size(44.dp)
                                 )
                             }
@@ -465,28 +464,28 @@ fun GstInvoiceDetailDialog(
                                 text = "TERMS & CONDITIONS:",
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = TextSecondaryMuted
+                                color = TextSecondary
                             )
-                            Text("1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. applicable post 30 days.\n3. Subject to Pune jurisdiction only.", fontSize = 8.sp, color = TextSecondaryMuted)
+                            Text("1. Goods once sold will not be taken back.\n2. Interest @ 18% p.a. applicable post 30 days.\n3. Subject to jurisdiction only.", fontSize = 8.sp, color = TextSecondary)
                         }
 
                         Column(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.End
                         ) {
-                            Text("For Kalyan Industrial Works", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
+                            Text("For GrowthEngine Works", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = DarkInk)
                             Spacer(modifier = Modifier.height(28.dp))
-                            Text("Authorized Signatory", fontSize = 9.sp, color = TextSecondaryMuted)
+                            Text("Authorized Signatory", fontSize = 9.sp, color = TextSecondary)
                         }
                     }
                 }
 
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(vertical = 8.dp))
 
                 // Bottom Close button
                 Button(
                     onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(containerColor = ImperialNavy),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkInk),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.fillMaxWidth().testTag("close_invoice_modal_btn")
                 ) {

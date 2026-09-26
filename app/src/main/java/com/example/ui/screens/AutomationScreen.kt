@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +31,7 @@ data class AutomationRuleModel(
     val title: String,
     val description: String,
     val triggerType: String,
-    val channel: String, // "WhatsApp", "SMS", "Email", "App Push"
+    val channel: String,
     val isEnabled: Boolean,
     val lastTriggeredTime: String
 )
@@ -97,25 +99,26 @@ fun AutomationScreen(
                     onTriggerAllAutomations()
                     Toast.makeText(context, "All active automation routines executed successfully.", Toast.LENGTH_SHORT).show()
                 },
-                containerColor = ImperialNavy,
-                contentColor = Color.White,
+                containerColor = GrowthEngineGold,
+                contentColor = DarkInk,
                 icon = { Icon(Icons.Default.Bolt, contentDescription = null) },
                 text = { Text("Run Workflows Now", fontWeight = FontWeight.Bold) },
                 modifier = Modifier.testTag("fab_run_automation")
             )
-        }
+        },
+        containerColor = BackgroundWhite,
+        modifier = Modifier.testTag("automation_screen")
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(WarmIvoryBackground)
                 .padding(paddingValues)
-                .testTag("automation_screen")
         ) {
             // Header
             Surface(
-                color = WarmIvorySurface,
-                tonalElevation = 2.dp,
+                color = BackgroundWhite,
+                tonalElevation = 1.dp,
+                border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -126,10 +129,18 @@ fun AutomationScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Automations & Workflows",
-                                fontSize = 20.sp,
+                                text = "AUTOMATED WORKFLOWS",
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ImperialNavy
+                                color = GrowthEngineGoldDark,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = "Business Automations",
+                                fontSize = 20.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
                             Text(
                                 text = "${rules.count { it.isEnabled }} of ${rules.size} Automated Rules Active",
@@ -139,17 +150,17 @@ fun AutomationScreen(
                         }
 
                         Surface(
-                            color = ForestGreen.copy(alpha = 0.12f),
-                            shape = RoundedCornerShape(8.dp)
+                            color = SuccessGreenContainer,
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, SuccessGreen.copy(alpha = 0.3f))
                         ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(14.dp))
-                                Text("Autopilot ON", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
-                            }
+                            Text(
+                                text = "ACTIVE ENGINE",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = SuccessGreenDark,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
                         }
                     }
                 }
@@ -157,103 +168,102 @@ fun AutomationScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(start = 16.dp, top = 14.dp, end = 16.dp, bottom = 90.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(rules, key = { it.id }) { rule ->
-                    AutomationRuleCard(
-                        rule = rule,
-                        onToggle = {
-                            val idx = rules.indexOfFirst { it.id == rule.id }
-                            if (idx != -1) {
-                                rules[idx] = rule.copy(isEnabled = !rule.isEnabled)
+                    var isEnabled by remember { mutableStateOf(rule.isEnabled) }
+
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        Icons.Default.Bolt,
+                                        contentDescription = null,
+                                        tint = if (isEnabled) GrowthEngineGoldDark else TextTertiary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Text(
+                                        text = rule.title,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp,
+                                        color = TextPrimary
+                                    )
+                                }
+
+                                Switch(
+                                    checked = isEnabled,
+                                    onCheckedChange = {
+                                        isEnabled = it
+                                        Toast.makeText(context, "${rule.title} ${if (it) "Enabled" else "Disabled"}", Toast.LENGTH_SHORT).show()
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = GrowthEngineGold,
+                                        checkedTrackColor = DarkInk
+                                    )
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = rule.description,
+                                fontSize = 11.sp,
+                                color = TextSecondary,
+                                lineHeight = 16.sp
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            HorizontalDivider(color = BorderLight)
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(Icons.Default.Schedule, contentDescription = null, tint = TextTertiary, modifier = Modifier.size(12.dp))
+                                    Text(
+                                        text = "Last triggered: ${rule.lastTriggeredTime}",
+                                        fontSize = 10.sp,
+                                        color = TextSecondary
+                                    )
+                                }
+
+                                Surface(
+                                    color = SurfaceSubtle,
+                                    shape = RoundedCornerShape(4.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+                                ) {
+                                    Text(
+                                        text = rule.channel,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = DarkInk,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
                         }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AutomationRuleCard(
-    rule: AutomationRuleModel,
-    onToggle: () -> Unit
-) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundWhite),
-        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = rule.title,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        color = DarkInk
-                    )
-                    Text(
-                        text = "Trigger: ${rule.triggerType} • Via: ${rule.channel}",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = ImperialNavy
-                    )
-                }
-
-                Switch(
-                    checked = rule.isEnabled,
-                    onCheckedChange = { onToggle() },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = ForestGreen
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = rule.description,
-                fontSize = 12.sp,
-                color = DarkInk.copy(alpha = 0.85f)
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(color = BorderSubtle)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(Icons.Default.Schedule, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(13.dp))
-                    Text("Last executed: ${rule.lastTriggeredTime}", fontSize = 11.sp, color = TextSecondary)
-                }
-
-                Surface(
-                    color = if (rule.isEnabled) ForestGreen.copy(alpha = 0.1f) else BorderSubtle,
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Text(
-                        text = if (rule.isEnabled) "ACTIVE" else "PAUSED",
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (rule.isEnabled) ForestGreen else TextSecondary,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
+                    }
                 }
             }
         }

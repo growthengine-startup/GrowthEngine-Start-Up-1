@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -18,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.AppNavTab
@@ -35,16 +38,16 @@ fun GrowthEngineLogo(
         // Gold squircle with cursive 'g'
         Box(
             modifier = Modifier
-                .size(34.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .size(30.dp)
+                .clip(RoundedCornerShape(7.dp))
                 .background(GrowthEngineGold)
-                .border(0.5.dp, GrowthEngineGoldDark, RoundedCornerShape(8.dp)),
+                .border(0.5.dp, GrowthEngineGoldDark, RoundedCornerShape(7.dp)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "g",
                 color = Color(0xFF141414),
-                fontSize = 22.sp,
+                fontSize = 20.sp,
                 fontFamily = FontFamily.Serif,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Bold,
@@ -52,21 +55,21 @@ fun GrowthEngineLogo(
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(6.dp))
 
         // GrowthEngine Typography
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "Growth",
                 color = TextPrimary,
-                fontSize = 19.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = (-0.3).sp
             )
             Text(
                 text = "Engine",
                 color = GrowthEngineGold,
-                fontSize = 19.sp,
+                fontSize = 17.sp,
                 fontFamily = FontFamily.Serif,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.SemiBold
@@ -88,7 +91,7 @@ fun AppTopBar(
     onOpenSettings: () -> Unit = {},
     onSignOut: () -> Unit = {}
 ) {
-    var showProfileMenu by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var showProfileMenu by remember { mutableStateOf(false) }
 
     Surface(
         color = BackgroundWhite,
@@ -100,19 +103,20 @@ fun AppTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Left: Hamburger Menu & Logo
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.weight(1f, fill = false)
             ) {
                 IconButton(
                     onClick = onOpenDrawer,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(38.dp)
                         .testTag("topbar_drawer_button")
                 ) {
                     Icon(
@@ -128,25 +132,26 @@ fun AppTopBar(
             // Right: Cloud Sync, Plan Pill & Interactive Profile Avatar Menu
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(start = 4.dp)
             ) {
                 // Cloud Sync Quick Indicator
                 Surface(
                     onClick = onOpenSupabase,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(14.dp),
                     color = ForestGreen.copy(alpha = 0.08f),
                     border = androidx.compose.foundation.BorderStroke(1.dp, ForestGreen.copy(alpha = 0.25f)),
                     modifier = Modifier.testTag("topbar_cloud_button")
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(6.dp)
-                                .clip(androidx.compose.foundation.shape.CircleShape)
+                                .size(5.dp)
+                                .clip(CircleShape)
                                 .background(ForestGreen)
                         )
                         Icon(
@@ -161,13 +166,13 @@ fun AppTopBar(
                 // Subscription Plan Pill
                 Surface(
                     onClick = onOpenBilling,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(14.dp),
                     color = GrowthEngineGoldContainer,
                     border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder),
                     modifier = Modifier.testTag("topbar_plan_pill")
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
@@ -175,16 +180,16 @@ fun AppTopBar(
                             Icons.Default.WorkspacePremium,
                             contentDescription = null,
                             tint = GrowthEngineGoldDark,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(11.dp)
                         )
                         Text(
                             text = when (planTier) {
-                                com.example.data.model.SubscriptionTier.STARTER_FREE -> "STARTER"
+                                com.example.data.model.SubscriptionTier.STARTER_FREE -> "FREE"
                                 com.example.data.model.SubscriptionTier.GROWTH_PRO -> "PRO"
                                 com.example.data.model.SubscriptionTier.ENTERPRISE_MUNIM -> "ENTERPRISE"
                             },
                             color = DarkInk,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -194,11 +199,11 @@ fun AppTopBar(
                 Box {
                     Surface(
                         onClick = { showProfileMenu = !showProfileMenu },
-                        shape = androidx.compose.foundation.shape.CircleShape,
+                        shape = CircleShape,
                         color = ImperialNavy,
-                        border = androidx.compose.foundation.BorderStroke(1.5.dp, GrowthEngineGold),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGold),
                         modifier = Modifier
-                            .size(36.dp)
+                            .size(32.dp)
                             .testTag("topbar_profile_button")
                     ) {
                         Box(contentAlignment = Alignment.Center) {
@@ -206,7 +211,7 @@ fun AppTopBar(
                             Text(
                                 text = initial,
                                 color = Color.White,
-                                fontSize = 14.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -232,13 +237,16 @@ fun AppTopBar(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 color = DarkInk,
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = businessRegion,
                                 fontSize = 11.sp,
-                                color = TextSecondary
+                                color = TextSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Surface(
@@ -267,7 +275,7 @@ fun AppTopBar(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Plans & Razorpay Billing", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                            text = { Text("Plans & Billing", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
                             leadingIcon = { Icon(Icons.Default.Payment, contentDescription = null, tint = GrowthEngineGoldDark, modifier = Modifier.size(18.dp)) },
                             onClick = {
                                 showProfileMenu = false
@@ -276,7 +284,7 @@ fun AppTopBar(
                         )
 
                         DropdownMenuItem(
-                            text = { Text("Supabase Cloud Sync", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
+                            text = { Text("Cloud Backup & Sync", fontSize = 13.sp, fontWeight = FontWeight.Medium) },
                             leadingIcon = { Icon(Icons.Default.CloudSync, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(18.dp)) },
                             onClick = {
                                 showProfileMenu = false
@@ -287,8 +295,8 @@ fun AppTopBar(
                         HorizontalDivider(color = BorderSubtle)
 
                         DropdownMenuItem(
-                            text = { Text("Sign Out / Switch Business", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TerracottaRed) },
-                            leadingIcon = { Icon(Icons.Default.Logout, contentDescription = null, tint = TerracottaRed, modifier = Modifier.size(18.dp)) },
+                            text = { Text("Sign Out / Switch Account", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TerracottaRed) },
+                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = TerracottaRed, modifier = Modifier.size(18.dp)) },
                             onClick = {
                                 showProfileMenu = false
                                 onSignOut()

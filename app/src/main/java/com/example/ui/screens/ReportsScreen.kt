@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,24 +39,49 @@ fun ReportsScreen(
     val totalItc = expenses.filter { it.isGstClaimable }.sumOf { it.gstAmount }
     val netGstPayable = (totalOutputTax - totalItc).coerceAtLeast(0.0)
 
-    val cogs = totalTaxable * 0.58 // estimated cost of materials & manufacturing
+    val cogs = totalTaxable * 0.58
     val grossProfit = totalTaxable - cogs
     val netProfit = grossProfit - totalExpenses
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(WarmIvoryBackground)
+            .background(BackgroundWhite)
             .verticalScroll(rememberScrollState())
-            .padding(14.dp)
+            .padding(16.dp)
             .testTag("reports_screen"),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Section Header
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "TAX & COMPLIANCE",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = GrowthEngineGoldDark,
+                letterSpacing = 1.sp
+            )
+            Text(
+                text = "GST & Financial Reports",
+                fontSize = 22.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "CA-ready GSTR-1, GSTR-3B tax calculations, Input Tax Credit (ITC) audits, and profit & loss summaries.",
+                fontSize = 12.sp,
+                color = TextSecondary,
+                lineHeight = 17.sp
+            )
+        }
+
         // GSTR-1 Outward Supply Summary Card
         Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
             modifier = Modifier.fillMaxWidth().testTag("gstr1_report_card")
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -66,26 +92,27 @@ fun ReportsScreen(
                 ) {
                     Column {
                         Text(
-                            text = "GSTR-1 TAX SUMMARY",
-                            fontSize = 12.sp,
+                            text = "GSTR-1 TAX RECONCILIATION",
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ImperialNavy,
+                            color = TextPrimary,
                             letterSpacing = 0.5.sp
                         )
                         Text(
                             text = "Monthly Return of Outward Supplies",
-                            fontSize = 10.sp,
-                            color = TextSecondaryMuted
+                            fontSize = 11.sp,
+                            color = TextSecondary
                         )
                     }
 
                     Surface(
-                        color = ForestEmeraldContainer,
-                        shape = RoundedCornerShape(4.dp)
+                        color = SuccessGreenContainer,
+                        shape = RoundedCornerShape(4.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, SuccessGreen)
                     ) {
                         Text(
                             text = "GSTR-1 READY",
-                            color = ForestEmerald,
+                            color = SuccessGreenDark,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -93,41 +120,45 @@ fun ReportsScreen(
                     }
                 }
 
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 10.dp))
+                HorizontalDivider(color = BorderLight, modifier = Modifier.padding(vertical = 10.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Total Invoiced Sales:", fontSize = 11.sp, color = TextSecondaryMuted)
-                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalSales)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Total Invoiced Sales:", fontSize = 11.sp, color = TextSecondary)
+                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalSales)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
                 }
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Aggregate Taxable Value:", fontSize = 11.sp, color = TextSecondaryMuted)
-                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalTaxable)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Aggregate Taxable Value:", fontSize = 11.sp, color = TextSecondary)
+                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalTaxable)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Surface(
-                    color = WarmIvorySurfaceVariant,
-                    shape = RoundedCornerShape(6.dp),
+                    color = SurfaceSubtle,
+                    shape = RoundedCornerShape(8.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderLight),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Central GST (CGST):", fontSize = 10.sp, color = TextSecondaryMuted)
-                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalCgst)}", fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            Text("Central GST (CGST 9%):", fontSize = 11.sp, color = TextSecondary)
+                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalCgst)}", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
                         }
+                        Spacer(modifier = Modifier.height(4.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("State GST (SGST):", fontSize = 10.sp, color = TextSecondaryMuted)
-                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalSgst)}", fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            Text("State GST (SGST 9%):", fontSize = 11.sp, color = TextSecondary)
+                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalSgst)}", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
                         }
+                        Spacer(modifier = Modifier.height(4.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Integrated GST (IGST Inter-state):", fontSize = 10.sp, color = TextSecondaryMuted)
-                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalIgst)}", fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                            Text("Integrated GST (IGST 18%):", fontSize = 11.sp, color = TextSecondary)
+                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalIgst)}", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
                         }
-                        HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 4.dp))
+                        HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(vertical = 6.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Total Output Tax Liability:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalOutputTax)}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = ImperialNavy)
+                            Text("Total Output Tax Liability:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text("₹ ${MainViewModel.formatCurrencyPlain(totalOutputTax)}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
                         }
                     }
                 }
@@ -136,129 +167,87 @@ fun ReportsScreen(
 
         // GSTR-3B Liability & ITC Card
         Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
-            modifier = Modifier.fillMaxWidth().testTag("gstr3b_report_card")
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "GSTR-3B TAX SETTLEMENT",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ImperialNavy,
-                            letterSpacing = 0.5.sp
-                        )
-                        Text(
-                            text = "Electronic Cash Ledger vs Input Tax Credit",
-                            fontSize = 10.sp,
-                            color = TextSecondaryMuted
-                        )
-                    }
-
-                    Surface(
-                        color = RoyalTeakGoldContainer,
-                        shape = RoundedCornerShape(4.dp)
-                    ) {
-                        Text(
-                            text = "DUE: 20TH",
-                            color = RoyalTeakGoldDark,
-                            fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
-                    }
-                }
-
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 10.dp))
-
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Total Output Tax (Sales):", fontSize = 11.sp, color = TextSecondaryMuted)
-                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalOutputTax)}", fontSize = 11.sp)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Eligible Input Tax Credit (ITC):", fontSize = 11.sp, color = ForestEmerald)
-                    Text("(-) ₹ ${MainViewModel.formatCurrencyPlain(totalItc)}", fontSize = 11.sp, color = ForestEmerald, fontWeight = FontWeight.Bold)
-                }
-
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 4.dp))
-
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Net Cash GST Payable:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                    Text(
-                        text = "₹ ${MainViewModel.formatCurrencyPlain(netGstPayable)}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = RoyalTeakGoldDark
-                    )
-                }
-            }
-        }
-
-        // P&L Statement Card
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = WarmIvorySurface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, WarmIvoryBorder),
-            modifier = Modifier.fillMaxWidth().testTag("pnl_report_card")
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "PROFIT & LOSS (P&L) STATEMENT",
-                    fontSize = 12.sp,
+                    text = "GSTR-3B SET-OFF & INPUT TAX CREDIT (ITC)",
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ImperialNavy,
+                    color = TextPrimary,
                     letterSpacing = 0.5.sp
                 )
                 Text(
-                    text = "Financial Year 2024-25 Run Rate",
-                    fontSize = 10.sp,
-                    color = TextSecondaryMuted
+                    text = "Automated tax credit set-off against B2B outward liability",
+                    fontSize = 11.sp,
+                    color = TextSecondary
                 )
 
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Gross Revenue (Sales Excl. GST):", fontSize = 11.sp, color = TextSecondaryMuted)
-                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalTaxable)}", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Gross Output Tax Payable:", fontSize = 11.sp, color = TextSecondary)
+                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalOutputTax)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
                 }
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Cost of Goods Sold (COGS 58%):", fontSize = 11.sp, color = TextSecondaryMuted)
-                    Text("(-) ₹ ${MainViewModel.formatCurrencyPlain(cogs)}", fontSize = 11.sp)
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Operating Expenses (Rent, Power, Wages):", fontSize = 11.sp, color = TextSecondaryMuted)
-                    Text("(-) ₹ ${MainViewModel.formatCurrencyPlain(totalExpenses)}", fontSize = 11.sp)
+                    Text("Eligible Input Tax Credit (ITC):", fontSize = 11.sp, color = SuccessGreenDark)
+                    Text("(-) ₹ ${MainViewModel.formatCurrencyPlain(totalItc)}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = SuccessGreenDark)
                 }
 
-                HorizontalDivider(color = WarmIvoryBorder, modifier = Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(color = BorderLight, modifier = Modifier.padding(vertical = 8.dp))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Net Operating Profit (EBIT):", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimaryDark)
-                    Text(
-                        text = "₹ ${MainViewModel.formatCurrencyPlain(netProfit)}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ForestEmerald
-                    )
-                }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Net Operating Margin:", fontSize = 11.sp, color = TextSecondaryMuted)
-                    val marginPercent = if (totalTaxable > 0) (netProfit / totalTaxable) * 100.0 else 0.0
-                    Text(
-                        text = "%.1f%%".format(marginPercent),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ForestEmerald
-                    )
+                    Text("Net Cash GST Payable to Govt:", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkInk)
+                    Text("₹ ${MainViewModel.formatCurrencyPlain(netGstPayable)}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = DarkInk)
                 }
             }
         }
+
+        // Profit & Loss Summary Card
+        Card(
+            shape = RoundedCornerShape(14.dp),
+            colors = CardDefaults.cardColors(containerColor = GrowthEngineGoldContainer),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GrowthEngineGoldBorder),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "EXECUTIVE PROFIT & LOSS",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = GrowthEngineGoldDark,
+                    letterSpacing = 0.5.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Gross Revenue:", fontSize = 11.sp, color = TextSecondary)
+                    Text("₹ ${MainViewModel.formatCurrencyPlain(totalTaxable)}", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Spacer(modifier = Modifier.height(3.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Estimated COGS (58%):", fontSize = 11.sp, color = TextSecondary)
+                    Text("(-) ₹ ${MainViewModel.formatCurrencyPlain(cogs)}", fontSize = 12.sp, color = TextSecondary)
+                }
+                Spacer(modifier = Modifier.height(3.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Operating Expenses:", fontSize = 11.sp, color = TextSecondary)
+                    Text("(-) ₹ ${MainViewModel.formatCurrencyPlain(totalExpenses)}", fontSize = 12.sp, color = TextSecondary)
+                }
+
+                HorizontalDivider(color = GrowthEngineGoldBorder, modifier = Modifier.padding(vertical = 6.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Net Operating Earnings:", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = DarkInk)
+                    Text("₹ ${MainViewModel.formatCurrencyPlain(netProfit)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = DarkInk)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
