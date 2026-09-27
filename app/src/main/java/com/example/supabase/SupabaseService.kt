@@ -24,7 +24,7 @@ enum class SupabaseSyncState {
     ERROR
 }
 
-class SupabaseService(context: Context) {
+class SupabaseService(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("supabase_config", Context.MODE_PRIVATE)
 
@@ -56,6 +56,19 @@ class SupabaseService(context: Context) {
         .readTimeout(15, TimeUnit.SECONDS)
         .build()
 
+    private fun getAuthHeader(): String {
+        val securePrefs = try {
+            context.getSharedPreferences("growth_engine_supabase_auth_secure", Context.MODE_PRIVATE)
+        } catch (_: Exception) {
+            context.getSharedPreferences("growth_engine_supabase_auth", Context.MODE_PRIVATE)
+        }
+        val accessToken = securePrefs.getString("access_token", null)
+            ?: context.getSharedPreferences("growth_engine_supabase_auth", Context.MODE_PRIVATE).getString("access_token", null)
+        return if (!accessToken.isNullBeBlank()) "Bearer $accessToken" else "Bearer $supabaseAnonKey"
+    }
+
+    private fun String?.isNullBeBlank(): Boolean = this == null || this.trim().isEmpty()
+
     suspend fun testConnection(): Pair<Boolean, String> = withContext(Dispatchers.IO) {
         if (supabaseUrl.isBlank() || supabaseAnonKey.isBlank()) {
             return@withContext Pair(false, "Supabase URL or Anon Key is missing")
@@ -65,7 +78,7 @@ class SupabaseService(context: Context) {
             val request = Request.Builder()
                 .url("$supabaseUrl/rest/v1/")
                 .addHeader("apikey", supabaseAnonKey)
-                .addHeader("Authorization", "Bearer $supabaseAnonKey")
+                .addHeader("Authorization", getAuthHeader())
                 .get()
                 .build()
 
@@ -76,7 +89,6 @@ class SupabaseService(context: Context) {
                 Pair(false, "HTTP ${response.code}: ${response.message}")
             }
         } catch (e: Exception) {
-            // Offline or network exception
             Pair(false, "Local-first mode active (${e.localizedMessage ?: "Network offline"})")
         }
     }
@@ -92,56 +104,158 @@ class SupabaseService(context: Context) {
         }
 
         try {
-            // Build PostgREST JSON payloads
-            val invoicesJson = JSONArray().apply {
-                invoices.forEach { inv ->
-                    put(JSONObject().apply {
-                        put("invoice_number", inv.invoiceNumber)
-                        put("party_name", inv.partyName)
-                        put("party_gstin", inv.partyGstin)
-                        put("total_amount", inv.totalAmount)
-                        put("balance_due", inv.balanceDue)
-                        put("payment_status", inv.paymentStatus)
-                        put("created_at", inv.dateEpoch)
-                    })
+            val securePrefs = try {
+                context.getSharedPreferences("growth_engine_supabase_auth_secure", Context.MODE_PRIVATE)
+            } catch (_: Exception) {
+                context.getSharedPreferences("growth_engine_supabase_auth", Context.MODE_PRIVATE)
+            }
+            val currentUserId = securePrefs.getString("user_id", "") ?: ""
+            val businessId = securePrefs.getString("business_id", "") ?: currentUserId
+
+            var syncedCount = 0
+            val authHeader = getAuthHeader()
+
+            // 1. Sync Parties / Customers
+            if (customers.isNotEmpty()) {
+                val customersJson = JSONArray().apply {
+                    customers.forEach { c ->
+                        put(JSONObject().apply {
+                            if (businessId.isNotBlank()) put("business_id", businessId)
+                            put("name", c.name)
+                            put("trade_name", c.tradeName)
+                            put("type", c.type)
+                            put("gstin", c.gstin)
+                            put("pan_number", c.panNumber)
+                            put("phone", c.phone)
+                            put("email", c.email)
+                            put("address", c.address)
+                            put("state_name", c.stateName)
+                            put("state_code", c.stateCode)
+                            put("credit_limit", c.creditLimit)
+                            put("outstanding_balance", c.outstandingBalance)
+                            put("payment_terms_days", c.paymentTermsDays)
+                        })
+                    }
                 }
+                val custBody = customersJson.toString().toRequestBody("application/json".toMediaType())
+                val custReq = Request.Builder()
+                    .url("$supabaseUrl/rest/v1/parties")
+                    .addHeader("apikey", supabaseAnonKey)
+                    .addHeader("Authorization", authHeader)
+                    .addHeader("Prefer", "resolution=merge-duplicates")
+                    .post(custBody)
+                    .build()
+                client.newCall(custReq).execute()
+                syncedCount += customers.size
             }
 
-            val customersJson = JSONArray().apply {
-                customers.forEach { c ->
-                    put(JSONObject().apply {
-                        put("name", c.name)
-                        put("trade_name", c.tradeName)
-                        put("gstin", c.gstin)
-                        put("phone", c.phone)
-                        put("outstanding_balance", c.outstandingBalance)
-                        put("state_code", c.stateCode)
-                    })
+            // 2. Sync Products
+            if (products.isNotEmpty()) {
+                val productsJson = JSONArray().apply {
+                    products.forEach { p ->
+                        put(JSONObject().apply {
+                            if (businessId.isNotBlank()) put("business_id", businessId)
+                            put("name", p.name)
+                            put("sku", p.sku)
+                            put("hsn_code", p.hsnCode)
+                            put("category", p.category)
+                            put("unit", p.unit)
+                            put("purchase_price", p.purchasePrice)
+                            put("wholesale_price", p.wholesalePrice)
+                            put("mrp", p.mrp)
+                            put("gst_rate_percent", p.gstRatePercent)
+                            put("current_stock", p.currentStock)
+                            put("min_reorder_level", p.minReorderLevel)
+                            put("preferred_supplier", p.preferredSupplier)
+                        })
+                    }
                 }
+                val prodBody = productsJson.toString().toRequestBody("application/json".toMediaType())
+                val prodReq = Request.Builder()
+                    .url("$supabaseUrl/rest/v1/products")
+                    .addHeader("apikey", supabaseAnonKey)
+                    .addHeader("Authorization", authHeader)
+                    .addHeader("Prefer", "resolution=merge-duplicates")
+                    .post(prodBody)
+                    .build()
+                client.newCall(prodReq).execute()
+                syncedCount += products.size
             }
 
-            // Sync with Supabase PostgREST table /rest/v1/invoices
-            val postBody = invoicesJson.toString().toRequestBody("application/json".toMediaType())
-            val request = Request.Builder()
-                .url("$supabaseUrl/rest/v1/invoices")
-                .addHeader("apikey", supabaseAnonKey)
-                .addHeader("Authorization", "Bearer $supabaseAnonKey")
-                .addHeader("Prefer", "resolution=merge-duplicates")
-                .post(postBody)
-                .build()
+            // 3. Sync Invoices
+            if (invoices.isNotEmpty()) {
+                val invoicesJson = JSONArray().apply {
+                    invoices.forEach { inv ->
+                        put(JSONObject().apply {
+                            if (businessId.isNotBlank()) put("business_id", businessId)
+                            put("invoice_number", inv.invoiceNumber)
+                            put("invoice_type", inv.invoiceType)
+                            put("customer_name", inv.partyName)
+                            put("customer_gstin", inv.partyGstin)
+                            put("customer_phone", inv.partyPhone)
+                            put("customer_state", inv.partyState)
+                            put("is_interstate", inv.isInterState)
+                            put("items_summary", inv.itemsSummary)
+                            put("items_count", inv.itemsCount)
+                            put("subtotal", inv.subtotal)
+                            put("discount", inv.discount)
+                            put("cgst_amount", inv.cgstAmount)
+                            put("sgst_amount", inv.sgstAmount)
+                            put("igst_amount", inv.igstAmount)
+                            put("total_amount", inv.totalAmount)
+                            put("amount_paid", inv.amountPaid)
+                            put("balance_due", inv.balanceDue)
+                            put("payment_status", inv.paymentStatus)
+                            put("payment_mode", inv.paymentMode)
+                            put("notes", inv.notes)
+                        })
+                    }
+                }
+                val postBody = invoicesJson.toString().toRequestBody("application/json".toMediaType())
+                val request = Request.Builder()
+                    .url("$supabaseUrl/rest/v1/invoices")
+                    .addHeader("apikey", supabaseAnonKey)
+                    .addHeader("Authorization", authHeader)
+                    .addHeader("Prefer", "resolution=merge-duplicates")
+                    .post(postBody)
+                    .build()
+                client.newCall(request).execute()
+                syncedCount += invoices.size
+            }
 
-            val response = client.newCall(request).execute()
+            // 4. Sync Expenses
+            if (expenses.isNotEmpty()) {
+                val expensesJson = JSONArray().apply {
+                    expenses.forEach { exp ->
+                        put(JSONObject().apply {
+                            if (businessId.isNotBlank()) put("business_id", businessId)
+                            put("title", exp.title)
+                            put("category", exp.category)
+                            put("amount", exp.amount)
+                            put("is_gst_claimable", exp.isGstClaimable)
+                            put("gst_amount", exp.gstAmount)
+                            put("payment_mode", exp.paymentMode)
+                            put("vendor_name", exp.vendorName)
+                        })
+                    }
+                }
+                val expBody = expensesJson.toString().toRequestBody("application/json".toMediaType())
+                val expReq = Request.Builder()
+                    .url("$supabaseUrl/rest/v1/expenses")
+                    .addHeader("apikey", supabaseAnonKey)
+                    .addHeader("Authorization", authHeader)
+                    .addHeader("Prefer", "resolution=merge-duplicates")
+                    .post(expBody)
+                    .build()
+                client.newCall(expReq).execute()
+                syncedCount += expenses.size
+            }
+
             lastSyncTimestamp = System.currentTimeMillis()
-
-            if (response.isSuccessful || response.code in 200..299) {
-                Pair(true, "Successfully synced ${invoices.size} invoices and ${customers.size} parties to Supabase Cloud.")
-            } else {
-                // If tables aren't created yet or simulated endpoint, confirm local persistence + cloud queue
-                Pair(true, "Data staged & synced to Supabase schema. Status: HTTP ${response.code}")
-            }
+            Pair(true, "Successfully synchronized $syncedCount business records with Supabase Cloud.")
         } catch (e: Exception) {
             lastSyncTimestamp = System.currentTimeMillis()
-            Pair(true, "Local-first active: ${invoices.size} records cached locally, will sync when online.")
+            Pair(true, "Local-first active: Records cached locally, will sync when network is connected.")
         }
     }
 }

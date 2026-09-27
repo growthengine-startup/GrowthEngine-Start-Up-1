@@ -2,6 +2,7 @@ package com.example
 
 import android.os.Bundle
 import android.widget.Toast
+import com.example.util.InvoiceShareHelper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -226,7 +227,7 @@ class MainActivity : ComponentActivity() {
                                             onConvertToInvoice = { viewModel.convertQuotationToInvoice(it) },
                                             onViewQuotation = { viewModel.openInvoiceView(it) },
                                             onShareQuotation = {
-                                                Toast.makeText(context, "Quotation ${it.invoiceNumber} shared via WhatsApp", Toast.LENGTH_SHORT).show()
+                                                InvoiceShareHelper.shareInvoice(context, it, businessName)
                                             }
                                         )
                                     }
@@ -392,7 +393,7 @@ class MainActivity : ComponentActivity() {
                                 invoice = inv,
                                 onDismiss = { viewModel.openInvoiceView(null) },
                                 onShare = {
-                                Toast.makeText(context, "Invoice ${inv.invoiceNumber} shared via WhatsApp / Email", Toast.LENGTH_SHORT).show()
+                                InvoiceShareHelper.shareInvoice(context, inv, businessName)
                             }
                         )
                     }
@@ -505,11 +506,11 @@ class MainActivity : ComponentActivity() {
                     initialBusinessName = businessName,
                     initialRegion = businessRegion,
                     onDismiss = { viewModel.setShowAuthModal(false) },
-                    onGoogleLoginSuccess = { email, name, bName, region ->
-                        viewModel.loginWithGoogle(email, name, bName, region)
+                    onAuthSuccess = { email, name, bName, region ->
+                        viewModel.onAuthSuccess(email, name, bName, region)
                     },
-                    onPasswordLoginSuccess = { name, region, email ->
-                        viewModel.login(name, region, email)
+                    onGuestContinue = {
+                        viewModel.enterGuestMode()
                     }
                 )
             }

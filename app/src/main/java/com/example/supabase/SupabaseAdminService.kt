@@ -22,7 +22,7 @@ class SupabaseAdminService(context: Context) {
         set(value) = prefs.edit().putString("supabase_url", value.trimEnd('/')).apply()
 
     var supabaseServiceRoleKey: String
-        get() = prefs.getString("supabase_service_role_key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyY3VvbmRjdXV3a3FjZ3RyaWd6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDMyNzYyNywiZXhwIjoyMTA1OTAzNjI3fQ.admin_secret_key_growthengine") ?: ""
+        get() = prefs.getString("supabase_service_role_key", "") ?: ""
         set(value) = prefs.edit().putString("supabase_service_role_key", value.trim()).apply()
 
     var supabaseAnonKey: String

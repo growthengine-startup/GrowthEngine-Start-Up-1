@@ -52,6 +52,39 @@ class RazorpayPaymentService(context: Context) {
         set(value) = prefs.edit().putString("rzp_merchant_vpa", value.trim()).apply()
 
     /**
+     * Builds JSONObject options for Razorpay Checkout
+     */
+    fun buildCheckoutOptions(
+        tier: SubscriptionTier,
+        cycle: BillingCycle,
+        userEmail: String,
+        userPhone: String
+    ): org.json.JSONObject {
+        val baseAmount = if (cycle == BillingCycle.ANNUAL) tier.getAnnualBilledTotal() else tier.monthlyPrice
+        val totalAmountInPaise = Math.round((baseAmount * 1.18) * 100) // with 18% GST
+
+        return org.json.JSONObject().apply {
+            put("name", merchantName)
+            put("description", "${tier.title} (${cycle.name.lowercase()} billing)")
+            put("currency", "INR")
+            put("amount", totalAmountInPaise)
+            put("theme.color", "#E5A93C")
+
+            val prefill = org.json.JSONObject().apply {
+                if (userEmail.isNotBlank()) put("email", userEmail)
+                if (userPhone.isNotBlank()) put("contact", userPhone)
+            }
+            put("prefill", prefill)
+
+            val retryObj = org.json.JSONObject().apply {
+                put("enabled", true)
+                put("max_count", 3)
+            }
+            put("retry", retryObj)
+        }
+    }
+
+    /**
      * Creates a new simulated or live order for Razorpay checkout
      */
     fun createOrder(tier: SubscriptionTier, cycle: BillingCycle): String {

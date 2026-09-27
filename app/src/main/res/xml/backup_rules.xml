@@ -1,13 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   GrowthEngine backup rules for Android Auto Backup.
+   Excludes sensitive credentials and encrypted auth tokens.
    See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Include Room database for offline data recovery -->
+    <include domain="database" path="growthengine_database" />
+
+    <!-- Include general app preferences (settings, UI state) -->
+    <include domain="sharedpref" path="growth_engine_auth_prefs.xml" />
+
+    <!-- Exclude encrypted credentials - these must be re-authenticated -->
+    <exclude domain="sharedpref" path="growth_engine_secure_prefs.xml" />
+
+    <!-- Exclude AI usage counters - these reset monthly anyway -->
+    <exclude domain="sharedpref" path="growthengine_ai_usage.xml" />
+
+    <!-- Exclude Supabase config (contains API keys loaded from secure store) -->
+    <exclude domain="sharedpref" path="growthengine_supabase_prefs.xml" />
+
+    <!-- Exclude cached sync state -->
+    <exclude domain="file" path="no_backup/" />
 </full-backup-content>

@@ -7,7 +7,8 @@ enum class SubscriptionTier(
     val monthlyPrice: Double,
     val annualPricePerMonth: Double,
     val isPopular: Boolean,
-    val badge: String?
+    val badge: String?,
+    val aiMonthlyTokenQuota: Long
 ) {
     STARTER_FREE(
         id = "starter_free",
@@ -16,7 +17,8 @@ enum class SubscriptionTier(
         monthlyPrice = 0.0,
         annualPricePerMonth = 0.0,
         isPopular = false,
-        badge = null
+        badge = null,
+        aiMonthlyTokenQuota = 10_000L
     ),
     GROWTH_PRO(
         id = "growth_pro",
@@ -25,7 +27,8 @@ enum class SubscriptionTier(
         monthlyPrice = 799.0,
         annualPricePerMonth = 599.0,
         isPopular = true,
-        badge = "MOST POPULAR"
+        badge = "MOST POPULAR",
+        aiMonthlyTokenQuota = 250_000L
     ),
     ENTERPRISE_MUNIM(
         id = "enterprise_munim",
@@ -34,7 +37,8 @@ enum class SubscriptionTier(
         monthlyPrice = 1999.0,
         annualPricePerMonth = 1499.0,
         isPopular = false,
-        badge = "ALL-INCLUSIVE"
+        badge = "ALL-INCLUSIVE",
+        aiMonthlyTokenQuota = 2_000_000L
     );
 
     fun getAnnualBilledTotal(): Double = annualPricePerMonth * 12

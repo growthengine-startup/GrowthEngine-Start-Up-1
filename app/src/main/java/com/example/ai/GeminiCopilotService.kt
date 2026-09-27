@@ -11,6 +11,19 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
+/**
+ * Wraps a copilot response with token usage metadata for quota tracking.
+ */
+data class CopilotResponse(
+    val text: String,
+    val promptTokens: Int,
+    val completionTokens: Int,
+    val modelName: String = "Gemini 2.5 Flash",
+    val isLocalFallback: Boolean = false
+) {
+    val totalTokens: Int get() = promptTokens + completionTokens
+}
+
 class GeminiCopilotService {
 
     private val client = OkHttpClient.Builder()
@@ -22,11 +35,16 @@ class GeminiCopilotService {
     suspend fun consultCopilot(
         userPrompt: String,
         businessContext: String
-    ): String = withContext(Dispatchers.IO) {
+    ): CopilotResponse = withContext(Dispatchers.IO) {
         val apiKey = BuildConfig.GEMINI_API_KEY
         if (apiKey.isNullOrBlank() || apiKey == "MY_GEMINI_API_KEY") {
-            // Intelligent local MSME executive response engine
-            return@withContext generateLocalExecutiveInsights(userPrompt, businessContext)
+            val localText = generateLocalExecutiveInsights(userPrompt, businessContext)
+            return@withContext CopilotResponse(
+                text = localText,
+                promptTokens = estimateTokens(userPrompt + businessContext),
+                completionTokens = estimateTokens(localText),
+                isLocalFallback = true
+            )
         }
 
         try {
@@ -74,21 +92,52 @@ class GeminiCopilotService {
 
             if (response.isSuccessful && !responseBody.isNullOrBlank()) {
                 val json = JSONObject(responseBody)
+
+                // Extract usage metadata from Gemini API response
+                val usageMeta = json.optJSONObject("usageMetadata")
+                val apiPromptTokens = usageMeta?.optInt("promptTokenCount", 0) ?: 0
+                val apiCompletionTokens = usageMeta?.optInt("candidatesTokenCount", 0) ?: 0
+
                 val candidates = json.optJSONArray("candidates")
                 if (candidates != null && candidates.length() > 0) {
                     val candidate = candidates.getJSONObject(0)
                     val content = candidate.optJSONObject("content")
                     val parts = content?.optJSONArray("parts")
                     if (parts != null && parts.length() > 0) {
-                        return@withContext parts.getJSONObject(0).optString("text", "No response generated.")
+                        val responseText = parts.getJSONObject(0).optString("text", "No response generated.")
+                        return@withContext CopilotResponse(
+                            text = responseText,
+                            promptTokens = if (apiPromptTokens > 0) apiPromptTokens else estimateTokens(userPrompt + businessContext),
+                            completionTokens = if (apiCompletionTokens > 0) apiCompletionTokens else estimateTokens(responseText),
+                            isLocalFallback = false
+                        )
                     }
                 }
             }
             // Fallback if API returned error or empty
-            generateLocalExecutiveInsights(userPrompt, businessContext)
+            val fallbackText = generateLocalExecutiveInsights(userPrompt, businessContext)
+            CopilotResponse(
+                text = fallbackText,
+                promptTokens = estimateTokens(userPrompt + businessContext),
+                completionTokens = estimateTokens(fallbackText),
+                isLocalFallback = true
+            )
         } catch (e: Exception) {
-            generateLocalExecutiveInsights(userPrompt, businessContext)
+            val fallbackText = generateLocalExecutiveInsights(userPrompt, businessContext)
+            CopilotResponse(
+                text = fallbackText,
+                promptTokens = estimateTokens(userPrompt + businessContext),
+                completionTokens = estimateTokens(fallbackText),
+                isLocalFallback = true
+            )
         }
+    }
+
+    /**
+     * Estimate token count from text. Approximation: ~4 characters per token for English/Hindi mix.
+     */
+    private fun estimateTokens(text: String): Int {
+        return (text.length / 4).coerceAtLeast(1)
     }
 
     private fun generateLocalExecutiveInsights(prompt: String, context: String): String {

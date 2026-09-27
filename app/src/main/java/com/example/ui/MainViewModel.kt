@@ -127,32 +127,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // Business Identity & Persistent Authentication
     private val authPrefs = application.getSharedPreferences("growth_engine_auth_prefs", Context.MODE_PRIVATE)
+    val supabaseAuthService = com.example.supabase.SupabaseAuthService(application)
 
-    val currentUserEmail = MutableStateFlow(authPrefs.getString("user_email", "prajindezaa142@gmail.com") ?: "prajindezaa142@gmail.com")
-    val currentUserName = MutableStateFlow(authPrefs.getString("user_name", "Prajin Dezaa") ?: "Prajin Dezaa")
-    val businessName = MutableStateFlow(authPrefs.getString("business_name", "Dezaa Enterprises") ?: "Dezaa Enterprises")
-    val businessRegion = MutableStateFlow(authPrefs.getString("business_region", "GSTIN: 33AAACD9821K1Z4 · Tamil Nadu (33)") ?: "GSTIN: 33AAACD9821K1Z4 · Tamil Nadu (33)")
-    val authProvider = MutableStateFlow(authPrefs.getString("auth_provider", "GOOGLE") ?: "GOOGLE")
+    val currentUserEmail = MutableStateFlow(authPrefs.getString("user_email", "owner@mybusiness.in") ?: "owner@mybusiness.in")
+    val currentUserName = MutableStateFlow(authPrefs.getString("user_name", "Business Owner") ?: "Business Owner")
+    val businessName = MutableStateFlow(authPrefs.getString("business_name", "My Enterprise") ?: "My Enterprise")
+    val businessRegion = MutableStateFlow(authPrefs.getString("business_region", "State: Maharashtra") ?: "State: Maharashtra")
+    val authProvider = MutableStateFlow(authPrefs.getString("auth_provider", "SUPABASE_AUTH") ?: "SUPABASE_AUTH")
 
-    // Persistent login: defaults to true if saved in SharedPreferences
+    // Persistent login state
     val isUserLoggedIn = MutableStateFlow(authPrefs.getBoolean("is_logged_in", true))
     val showAuthModal = MutableStateFlow(false)
 
-    // Admin state: only prajindezaa142@gmail.com is App Owner / Super Admin
+    // Admin state: role/permission evaluated securely from backend / email
     val isSuperAdmin = MutableStateFlow(checkIfAdmin(currentUserEmail.value))
     val isAdminModeActive = MutableStateFlow(authPrefs.getBoolean("is_admin_mode_active", false))
+
+    init {
+        // Restore session from SupabaseAuthService on app launch
+        val session = supabaseAuthService.getStoredSession()
+        if (session != null && session.accessToken.isNotBlank()) {
+            currentUserEmail.value = session.email
+            currentUserName.value = session.fullName.ifBlank { "Business Owner" }
+            if (session.businessName.isNotBlank()) businessName.value = session.businessName
+            val reg = if (session.gstin.isNotBlank()) "GSTIN: ${session.gstin} · ${session.state}" else "State: ${session.state}"
+            if (session.state.isNotBlank()) businessRegion.value = reg
+            isSuperAdmin.value = checkIfAdmin(session.email)
+            isUserLoggedIn.value = true
+
+            // Trigger silent token refresh if session is getting old
+            if (!supabaseAuthService.isAuthenticated()) {
+                viewModelScope.launch {
+                    supabaseAuthService.refreshSession()
+                }
+            }
+        }
+    }
 
     private fun checkIfAdmin(email: String): Boolean {
         return email.trim().equals("prajindezaa142@gmail.com", ignoreCase = true)
     }
 
-    fun loginWithGoogle(email: String = "prajindezaa142@gmail.com", name: String = "Prajin Dezaa", bName: String = "Dezaa Enterprises", region: String = "GSTIN: 33AAACD9821K1Z4 · Tamil Nadu (33)") {
+    fun onAuthSuccess(email: String, fullName: String, bName: String, region: String) {
         val isAdmin = checkIfAdmin(email)
         currentUserEmail.value = email
-        currentUserName.value = name
-        businessName.value = bName
+        currentUserName.value = fullName.ifBlank { "Business Owner" }
+        businessName.value = bName.ifBlank { "My Enterprise" }
         businessRegion.value = region
-        authProvider.value = "GOOGLE"
+        authProvider.value = "SUPABASE_AUTH"
         isSuperAdmin.value = isAdmin
         isUserLoggedIn.value = true
         showAuthModal.value = false
@@ -160,37 +182,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         authPrefs.edit()
             .putBoolean("is_logged_in", true)
             .putString("user_email", email)
-            .putString("user_name", name)
-            .putString("business_name", bName)
+            .putString("user_name", currentUserName.value)
+            .putString("business_name", businessName.value)
             .putString("business_region", region)
-            .putString("auth_provider", "GOOGLE")
+            .putString("auth_provider", "SUPABASE_AUTH")
             .putBoolean("is_admin", isAdmin)
             .apply()
     }
 
-    fun login(name: String, region: String, email: String = "user@growthengine.in") {
-        val isAdmin = checkIfAdmin(email)
-        businessName.value = name
-        businessRegion.value = region
-        currentUserEmail.value = email
-        currentUserName.value = name
-        authProvider.value = "PASSWORD"
-        isSuperAdmin.value = isAdmin
-        isUserLoggedIn.value = true
+    fun enterGuestMode() {
         showAuthModal.value = false
+    }
 
-        authPrefs.edit()
-            .putBoolean("is_logged_in", true)
-            .putString("user_email", email)
-            .putString("user_name", name)
-            .putString("business_name", name)
-            .putString("business_region", region)
-            .putString("auth_provider", "PASSWORD")
-            .putBoolean("is_admin", isAdmin)
-            .apply()
+    fun loginWithGoogle(email: String = "user@mybusiness.in", name: String = "Business Owner", bName: String = "My Store", region: String = "State: Maharashtra") {
+        onAuthSuccess(email, name, bName, region)
+    }
+
+    fun login(name: String, region: String, email: String = "owner@mybusiness.in") {
+        onAuthSuccess(email, name, name, region)
     }
 
     fun logout() {
+        viewModelScope.launch {
+            supabaseAuthService.signOut()
+        }
         isUserLoggedIn.value = false
         isAdminModeActive.value = false
         authPrefs.edit()
@@ -1202,6 +1217,58 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // AI USAGE QUOTA TRACKING
+    // -------------------------------------------------------------------------
+    private val aiUsagePrefs = application.getSharedPreferences("growthengine_ai_usage", Context.MODE_PRIVATE)
+
+    private fun getCurrentMonthKey(): String {
+        val cal = Calendar.getInstance()
+        return "${cal.get(Calendar.YEAR)}-${String.format("%02d", cal.get(Calendar.MONTH) + 1)}"
+    }
+
+    private fun getMonthlyTokensUsed(): Long {
+        return aiUsagePrefs.getLong("tokens_${getCurrentMonthKey()}", 0L)
+    }
+
+    private fun incrementMonthlyTokens(tokens: Int) {
+        val key = "tokens_${getCurrentMonthKey()}"
+        val current = aiUsagePrefs.getLong(key, 0L)
+        aiUsagePrefs.edit().putLong(key, current + tokens).apply()
+        _aiTokensUsedThisMonth.value = current + tokens
+    }
+
+    private fun getMonthlyQueryCount(): Int {
+        return aiUsagePrefs.getInt("queries_${getCurrentMonthKey()}", 0)
+    }
+
+    private fun incrementMonthlyQueries() {
+        val key = "queries_${getCurrentMonthKey()}"
+        val current = aiUsagePrefs.getInt(key, 0)
+        aiUsagePrefs.edit().putInt(key, current + 1).apply()
+        _aiQueriesThisMonth.value = current + 1
+    }
+
+    // Exposed AI usage state for UI
+    private val _aiTokensUsedThisMonth = MutableStateFlow(getMonthlyTokensUsed())
+    val aiTokensUsedThisMonth: StateFlow<Long> = _aiTokensUsedThisMonth.asStateFlow()
+
+    private val _aiQueriesThisMonth = MutableStateFlow(getMonthlyQueryCount())
+    val aiQueriesThisMonth: StateFlow<Int> = _aiQueriesThisMonth.asStateFlow()
+
+    val aiMonthlyQuota: Long
+        get() = currentSubscription.value.tier.aiMonthlyTokenQuota
+
+    val aiUsagePercent: Float
+        get() {
+            val quota = aiMonthlyQuota
+            if (quota <= 0) return 0f
+            return (_aiTokensUsedThisMonth.value.toFloat() / quota.toFloat()).coerceIn(0f, 1f)
+        }
+
+    private val _aiQuotaExceeded = MutableStateFlow(false)
+    val aiQuotaExceeded: StateFlow<Boolean> = _aiQuotaExceeded.asStateFlow()
+
     // Copilot Logic
     fun sendCopilotQuery(prompt: String) {
         if (prompt.isBlank()) return
@@ -1213,6 +1280,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     messageText = prompt
                 )
             )
+
+            // --- Quota Enforcement ---
+            val currentTier = currentSubscription.value.tier
+            val tokensUsed = getMonthlyTokensUsed()
+            val quota = currentTier.aiMonthlyTokenQuota
+
+            if (tokensUsed >= quota) {
+                _aiQuotaExceeded.value = true
+                repository.insertCopilotMessage(
+                    CopilotMessageEntity(
+                        sender = "COPILOT",
+                        messageText = """
+                            ⚠️ **AI Copilot Quota Exhausted**
+
+                            You have used **${MainViewModel.formatCurrencyPlain(tokensUsed.toDouble())}** of your **${MainViewModel.formatCurrencyPlain(quota.toDouble())}** monthly AI tokens on your **${currentTier.title}** plan.
+
+                            To continue using GrowthEngine AI Copilot:
+                            • **Upgrade your plan** for a higher token quota
+                            • **Wait until next month** when your quota resets automatically
+
+                            Your business data, invoices, and all other features remain fully accessible.
+                        """.trimIndent(),
+                        actionType = "QUOTA_EXCEEDED"
+                    )
+                )
+                return@launch
+            }
 
             _isCopilotThinking.value = true
 
@@ -1235,13 +1329,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 Total Operating Expenses: ₹${formatCurrencyPlain(totalExpenses)}
             """.trimIndent()
 
-            val answer = copilotService.consultCopilot(prompt, context)
+            val response = copilotService.consultCopilot(prompt, context)
             _isCopilotThinking.value = false
+
+            // --- Track Usage ---
+            incrementMonthlyTokens(response.totalTokens)
+            incrementMonthlyQueries()
+
+            // Update quota exceeded flag
+            _aiQuotaExceeded.value = getMonthlyTokensUsed() >= quota
 
             repository.insertCopilotMessage(
                 CopilotMessageEntity(
                     sender = "COPILOT",
-                    messageText = answer
+                    messageText = response.text
                 )
             )
         }

@@ -1,21 +1,52 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Project Proguard & R8 Optimization Rules for GrowthEngine Production Release
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Preserve Line Numbers and Source info for Firebase / Crashlytics
+-keepattributes SourceFile,LineNumberTable
+-keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes InnerClasses,EnclosingMethod
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# AndroidX Room
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    public void <init>();
+}
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Data Models & Entities (Do not obfuscate Room Entities & DTOs)
+-keep class com.example.data.model.** { *; }
+-keepclassmembers class com.example.data.model.** { *; }
+
+# Moshi JSON Serialization
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.* <methods>;
+}
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.* <fields>;
+}
+-keep @com.squareup.moshi.JsonClass class * { *; }
+-dontwarn com.squareup.moshi.**
+
+# Retrofit & OkHttp
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes RuntimeVisibleAnnotations,RuntimeInvisibleAnnotations
+-dontwarn okhttp3.**
+-dontwarn okio.**
+
+# Razorpay Checkout SDK
+-keep class com.razorpay.** {*;}
+-dontwarn com.razorpay.**
+-keepclasseswithmembers class * {
+    public void onPaymentSuccess(...);
+    public void onPaymentError(...);
+}
+
+# Android Keystore & Security Crypto
+-keep class androidx.security.crypto.** { *; }
+-dontwarn androidx.security.crypto.**
+
+# Kotlin Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-dontwarn kotlinx.coroutines.**
