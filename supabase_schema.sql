@@ -255,10 +255,10 @@ USING (bucket_id = 'backups')
 WITH CHECK (bucket_id = 'backups');
 
 -- ==============================================================================
--- SEED DEFAULT BUSINESS (Safely)
+-- SEED DEFAULT BUSINESS (Safely with valid UUID)
 -- ==============================================================================
 INSERT INTO public.businesses (id, name)
-VALUES ('biz_initial_default', 'GrowthEngine Enterprise')
+VALUES ('a0000000-0000-0000-0000-000000000001', 'GrowthEngine Enterprise')
 ON CONFLICT (id) DO NOTHING;
 
 UPDATE public.businesses
@@ -266,4 +266,4 @@ SET is_active = true,
     plan_tier = 'ENTERPRISE_AI',
     subscription_status = 'ACTIVE',
     ai_monthly_token_quota = 2000000
-WHERE id = 'biz_initial_default';
+WHERE id = 'a0000000-0000-0000-0000-000000000001';
