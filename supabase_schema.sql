@@ -1,188 +1,197 @@
 -- ==============================================================================
--- GrowthEngine ERP & POS — Complete Supabase PostgreSQL Schema & Storage Setup
--- Run this entire script in Supabase Dashboard -> SQL Editor -> Click 'Run'
+-- GrowthEngine ERP & POS — Safe Supabase PostgreSQL Schema & Storage Setup
+-- Works on both fresh databases AND existing databases with existing tables.
 -- ==============================================================================
 
 -- 1. Enable UUID Extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ==============================================================================
--- TABLE 1: businesses (Core MSME Business Profiles & Quotas)
+-- 1. businesses
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.businesses (
     id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
-    name TEXT NOT NULL,
-    trade_name TEXT,
-    owner_email TEXT,
-    owner_phone TEXT,
-    gstin TEXT,
-    state TEXT,
-    plan_tier TEXT DEFAULT 'GROWTH_PRO',
-    subscription_status TEXT DEFAULT 'ACTIVE',
-    is_active BOOLEAN DEFAULT TRUE,
-    is_suspended BOOLEAN DEFAULT FALSE,
-    ai_monthly_token_quota BIGINT DEFAULT 250000,
-    ai_tokens_used BIGINT DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    name TEXT NOT NULL
 );
 
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS trade_name TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS owner_email TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS owner_phone TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS gstin TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS state TEXT;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS plan_tier TEXT DEFAULT 'GROWTH_PRO';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'ACTIVE';
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS ai_monthly_token_quota BIGINT DEFAULT 250000;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS ai_tokens_used BIGINT DEFAULT 0;
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 2: parties (Customers & Suppliers)
+-- 2. parties (Customers & Suppliers)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.parties (
     id BIGSERIAL PRIMARY KEY,
-    business_id TEXT,
-    name TEXT NOT NULL,
-    trade_name TEXT,
-    type TEXT DEFAULT 'CUSTOMER', -- 'CUSTOMER', 'SUPPLIER'
-    gstin TEXT,
-    pan_number TEXT,
-    phone TEXT,
-    email TEXT,
-    address TEXT,
-    state_name TEXT,
-    state_code TEXT,
-    credit_limit NUMERIC(15, 2) DEFAULT 0.0,
-    outstanding_balance NUMERIC(15, 2) DEFAULT 0.0,
-    payment_terms_days INTEGER DEFAULT 30,
-    overdue_days INTEGER DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    name TEXT NOT NULL
 );
 
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS trade_name TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'CUSTOMER';
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS gstin TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS pan_number TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS state_name TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS state_code TEXT;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS credit_limit NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS outstanding_balance NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS payment_terms_days INTEGER DEFAULT 30;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS overdue_days INTEGER DEFAULT 0;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 3: products (Inventory & Items Catalog)
+-- 3. products (Inventory & Items Catalog)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.products (
     id BIGSERIAL PRIMARY KEY,
-    business_id TEXT,
-    name TEXT NOT NULL,
-    sku TEXT,
-    hsn_code TEXT,
-    category TEXT,
-    unit TEXT DEFAULT 'Pcs',
-    purchase_price NUMERIC(15, 2) DEFAULT 0.0,
-    wholesale_price NUMERIC(15, 2) DEFAULT 0.0,
-    mrp NUMERIC(15, 2) DEFAULT 0.0,
-    gst_rate_percent NUMERIC(5, 2) DEFAULT 18.0,
-    current_stock NUMERIC(15, 2) DEFAULT 0.0,
-    min_reorder_level NUMERIC(15, 2) DEFAULT 5.0,
-    preferred_supplier TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    name TEXT NOT NULL
 );
 
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS sku TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS hsn_code TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS unit TEXT DEFAULT 'Pcs';
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS purchase_price NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS wholesale_price NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS mrp NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS gst_rate_percent NUMERIC(5, 2) DEFAULT 18.0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS current_stock NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS min_reorder_level NUMERIC(15, 2) DEFAULT 5.0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS preferred_supplier TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 4: invoices (GST Invoices, Proformas, Quotations, POS Bills)
+-- 4. invoices (GST Invoices, Quotations, POS Bills)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.invoices (
     id BIGSERIAL PRIMARY KEY,
-    business_id TEXT,
-    invoice_number TEXT NOT NULL,
-    invoice_type TEXT DEFAULT 'TAX_INVOICE',
-    party_id BIGINT,
-    customer_name TEXT,
-    customer_gstin TEXT,
-    customer_phone TEXT,
-    customer_state TEXT,
-    is_interstate BOOLEAN DEFAULT FALSE,
-    date_epoch BIGINT,
-    due_date_epoch BIGINT,
-    items_summary TEXT,
-    items_count INTEGER DEFAULT 0,
-    subtotal NUMERIC(15, 2) DEFAULT 0.0,
-    discount NUMERIC(15, 2) DEFAULT 0.0,
-    cgst_amount NUMERIC(15, 2) DEFAULT 0.0,
-    sgst_amount NUMERIC(15, 2) DEFAULT 0.0,
-    igst_amount NUMERIC(15, 2) DEFAULT 0.0,
-    total_amount NUMERIC(15, 2) DEFAULT 0.0,
-    amount_paid NUMERIC(15, 2) DEFAULT 0.0,
-    balance_due NUMERIC(15, 2) DEFAULT 0.0,
-    payment_status TEXT DEFAULT 'PAID', -- 'PAID', 'PARTIAL', 'UNPAID', 'OVERDUE'
-    payment_mode TEXT DEFAULT 'UPI',
-    eway_bill_number TEXT,
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    invoice_number TEXT NOT NULL
 );
 
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS invoice_type TEXT DEFAULT 'TAX_INVOICE';
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS party_id BIGINT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS customer_name TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS customer_gstin TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS customer_phone TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS customer_state TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS is_interstate BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS date_epoch BIGINT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS due_date_epoch BIGINT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS items_summary TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS items_count INTEGER DEFAULT 0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS subtotal NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS discount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS cgst_amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS sgst_amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS igst_amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS total_amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS amount_paid NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS balance_due NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'PAID';
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_mode TEXT DEFAULT 'UPI';
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS eway_bill_number TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 5: expenses (Business Expenditure & GST ITC Tracking)
+-- 5. expenses (Business Expenditure & GST ITC)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.expenses (
     id BIGSERIAL PRIMARY KEY,
-    business_id TEXT,
-    title TEXT NOT NULL,
-    category TEXT,
-    amount NUMERIC(15, 2) DEFAULT 0.0,
-    is_gst_claimable BOOLEAN DEFAULT FALSE,
-    gst_amount NUMERIC(15, 2) DEFAULT 0.0,
-    payment_mode TEXT DEFAULT 'UPI',
-    vendor_name TEXT,
-    date_epoch BIGINT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    title TEXT NOT NULL
 );
 
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS is_gst_claimable BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS gst_amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS payment_mode TEXT DEFAULT 'UPI';
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS vendor_name TEXT;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS date_epoch BIGINT;
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 6: payments (Ledger & Khata Payment Transactions)
+-- 6. payments (Ledger & Khata Transactions)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.payments (
-    id BIGSERIAL PRIMARY KEY,
-    business_id TEXT,
-    party_id BIGINT,
-    party_name TEXT,
-    invoice_number TEXT,
-    amount NUMERIC(15, 2) DEFAULT 0.0,
-    payment_mode TEXT DEFAULT 'UPI',
-    reference_number TEXT,
-    date_epoch BIGINT,
-    notes TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    id BIGSERIAL PRIMARY KEY
 );
 
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS party_id BIGINT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS party_name TEXT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS invoice_number TEXT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS amount NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS payment_mode TEXT DEFAULT 'UPI';
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS reference_number TEXT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS date_epoch BIGINT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 7: manufacturing_orders (BOM Production & Batch Tracking)
+-- 7. manufacturing_orders (BOM Production)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.manufacturing_orders (
     id BIGSERIAL PRIMARY KEY,
-    business_id TEXT,
     batch_code TEXT NOT NULL,
-    finished_good_name TEXT NOT NULL,
-    target_quantity NUMERIC(15, 2) DEFAULT 1.0,
-    unit TEXT DEFAULT 'Pcs',
-    status TEXT DEFAULT 'PLANNED',
-    raw_materials_used_summary TEXT,
-    estimated_cost_per_unit NUMERIC(15, 2) DEFAULT 0.0,
-    start_date_epoch BIGINT,
-    target_date_epoch BIGINT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    finished_good_name TEXT NOT NULL
 );
 
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS business_id TEXT;
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS target_quantity NUMERIC(15, 2) DEFAULT 1.0;
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS unit TEXT DEFAULT 'Pcs';
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'PLANNED';
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS raw_materials_used_summary TEXT;
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS estimated_cost_per_unit NUMERIC(15, 2) DEFAULT 0.0;
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS start_date_epoch BIGINT;
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS target_date_epoch BIGINT;
+ALTER TABLE public.manufacturing_orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 8: notifications (Broadcast & Targeted In-App Notifications)
+-- 8. notifications (In-App Broadcasts)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.notifications (
     id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
     title TEXT NOT NULL,
-    message TEXT NOT NULL,
-    notification_type TEXT DEFAULT 'broadcast',
-    target_audience TEXT DEFAULT 'ALL_USERS',
-    channel TEXT DEFAULT 'in_app',
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    message TEXT NOT NULL
 );
 
+ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS notification_type TEXT DEFAULT 'broadcast';
+ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS target_audience TEXT DEFAULT 'ALL_USERS';
+ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS channel TEXT DEFAULT 'in_app';
+ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
 -- ==============================================================================
--- TABLE 9: activity_audit_logs (Security & Admin Activity Audit)
+-- 9. activity_audit_logs (Security & Admin Activity Audit)
 -- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.activity_audit_logs (
     id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
     actor_email TEXT,
-    actor_role TEXT,
-    action TEXT,
-    target_entity TEXT,
-    details TEXT,
-    ip_address TEXT,
-    severity TEXT DEFAULT 'info',
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    action TEXT
 );
+
+ALTER TABLE public.activity_audit_logs ADD COLUMN IF NOT EXISTS actor_role TEXT;
+ALTER TABLE public.activity_audit_logs ADD COLUMN IF NOT EXISTS target_entity TEXT;
+ALTER TABLE public.activity_audit_logs ADD COLUMN IF NOT EXISTS details TEXT;
+ALTER TABLE public.activity_audit_logs ADD COLUMN IF NOT EXISTS ip_address TEXT;
+ALTER TABLE public.activity_audit_logs ADD COLUMN IF NOT EXISTS severity TEXT DEFAULT 'info';
+ALTER TABLE public.activity_audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- ==============================================================================
 -- PERFORMANCE INDEXES
@@ -190,13 +199,11 @@ CREATE TABLE IF NOT EXISTS public.activity_audit_logs (
 CREATE INDEX IF NOT EXISTS idx_parties_business_id ON public.parties(business_id);
 CREATE INDEX IF NOT EXISTS idx_products_business_id ON public.products(business_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_business_id ON public.invoices(business_id);
-CREATE INDEX IF NOT EXISTS idx_invoices_invoice_number ON public.invoices(invoice_number);
 CREATE INDEX IF NOT EXISTS idx_expenses_business_id ON public.expenses(business_id);
 CREATE INDEX IF NOT EXISTS idx_payments_business_id ON public.payments(business_id);
 
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
--- Ensures anon and authenticated clients can sync records seamlessly
 -- ==============================================================================
 ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.parties ENABLE ROW LEVEL SECURITY;
@@ -208,7 +215,6 @@ ALTER TABLE public.manufacturing_orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_audit_logs ENABLE ROW LEVEL SECURITY;
 
--- Allow full access to anon and authenticated roles
 DO $$
 DECLARE
     tbl text;
@@ -227,7 +233,6 @@ END $$;
 -- ==============================================================================
 -- SUPABASE STORAGE BUCKETS (Invoices, Documents & Assets)
 -- ==============================================================================
--- 1. Create storage buckets
 INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
 VALUES 
     ('invoices', 'invoices', true, false, 20971520, ARRAY['application/pdf', 'image/png', 'image/jpeg']),
@@ -235,7 +240,6 @@ VALUES
     ('backups', 'backups', false, false, 52428800, NULL)
 ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
 
--- 2. Storage RLS Policies (Allow read/write access for public/app usage)
 DROP POLICY IF EXISTS "Public Invoice Access" ON storage.objects;
 CREATE POLICY "Public Invoice Access"
 ON storage.objects FOR ALL
@@ -251,19 +255,15 @@ USING (bucket_id = 'backups')
 WITH CHECK (bucket_id = 'backups');
 
 -- ==============================================================================
--- SEED INITIAL RECORD (So Admin Analytics and Sync test query returns 200 OK)
+-- SEED DEFAULT BUSINESS (Safely)
 -- ==============================================================================
-INSERT INTO public.businesses (id, name, trade_name, owner_email, gstin, state, plan_tier, subscription_status, is_active, ai_monthly_token_quota)
-VALUES (
-    'biz_initial_default',
-    'GrowthEngine Enterprise',
-    'GrowthEngine MSME',
-    'prajindezaa142@gmail.com',
-    '27AAAAA0000A1Z5',
-    'Maharashtra',
-    'ENTERPRISE_AI',
-    'ACTIVE',
-    true,
-    2000000
-)
+INSERT INTO public.businesses (id, name)
+VALUES ('biz_initial_default', 'GrowthEngine Enterprise')
 ON CONFLICT (id) DO NOTHING;
+
+UPDATE public.businesses
+SET is_active = true,
+    plan_tier = 'ENTERPRISE_AI',
+    subscription_status = 'ACTIVE',
+    ai_monthly_token_quota = 2000000
+WHERE id = 'biz_initial_default';
