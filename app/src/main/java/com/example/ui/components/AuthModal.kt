@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.supabase.AuthResult
+import com.example.supabase.GoogleSignInHelper
 import com.example.supabase.SupabaseAuthService
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
@@ -193,12 +195,16 @@ fun AuthModal(
     var showPassword by remember { mutableStateOf(false) }
     var showConfirmPassword by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var isGoogleLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
 
     val isValidEmail = remember(emailInput) {
         emailInput.isNotBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(emailInput.trim()).matches()
     }
+
+    val googleSignInHelper = remember { GoogleSignInHelper(context) }
+    val activity = context as? Activity
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -424,8 +430,35 @@ fun AuthModal(
                             // ── Continue with Google ──────────────────────────
                             OutlinedButton(
                                 onClick = {
-                                    Toast.makeText(context, "Google Sign-In coming soon!", Toast.LENGTH_SHORT).show()
+                                    if (activity == null) {
+                                        errorMessage = "Unable to launch Google Sign-In from this context."
+                                        return@OutlinedButton
+                                    }
+                                    isGoogleLoading = true
+                                    errorMessage = null
+                                    coroutineScope.launch {
+                                        when (val result = googleSignInHelper.signInWithGoogle(activity)) {
+                                            is AuthResult.Success -> {
+                                                isGoogleLoading = false
+                                                val session = result.data
+                                                val bName = session.businessName.ifBlank { "My Enterprise" }
+                                                val reg = if (session.gstin.isNotBlank()) "GSTIN: ${session.gstin} · ${session.state}" else "State: ${session.state}"
+                                                Toast.makeText(context, "Welcome, ${session.fullName.ifBlank { session.email }}!", Toast.LENGTH_SHORT).show()
+                                                onAuthSuccess(session.email, session.fullName, bName, reg)
+                                            }
+                                            is AuthResult.Error -> {
+                                                isGoogleLoading = false
+                                                if (result.errorCode != "USER_CANCELLED") {
+                                                    errorMessage = result.errorMessage
+                                                }
+                                            }
+                                            else -> {
+                                                isGoogleLoading = false
+                                            }
+                                        }
+                                    }
                                 },
+                                enabled = !isLoading && !isGoogleLoading,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDADCE0)),
@@ -434,18 +467,26 @@ fun AuthModal(
                                     .height(48.dp)
                                     .testTag("auth_google_btn")
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    GoogleLogoIcon(modifier = Modifier.size(20.dp))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Text(
-                                        text = "Continue with Google",
-                                        color = Color(0xFF3C4043),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                if (isGoogleLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        color = Color(0xFF4285F4),
+                                        strokeWidth = 2.dp
                                     )
+                                } else {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        GoogleLogoIcon(modifier = Modifier.size(20.dp))
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Text(
+                                            text = "Continue with Google",
+                                            color = Color(0xFF3C4043),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
                             }
 
@@ -599,8 +640,35 @@ fun AuthModal(
                             // ── Continue with Google (Sign Up) ───────────────
                             OutlinedButton(
                                 onClick = {
-                                    Toast.makeText(context, "Google Sign-Up coming soon!", Toast.LENGTH_SHORT).show()
+                                    if (activity == null) {
+                                        errorMessage = "Unable to launch Google Sign-In from this context."
+                                        return@OutlinedButton
+                                    }
+                                    isGoogleLoading = true
+                                    errorMessage = null
+                                    coroutineScope.launch {
+                                        when (val result = googleSignInHelper.signInWithGoogle(activity)) {
+                                            is AuthResult.Success -> {
+                                                isGoogleLoading = false
+                                                val session = result.data
+                                                val bName = session.businessName.ifBlank { "My Enterprise" }
+                                                val reg = if (session.gstin.isNotBlank()) "GSTIN: ${session.gstin} · ${session.state}" else "State: ${session.state}"
+                                                Toast.makeText(context, "Welcome, ${session.fullName.ifBlank { session.email }}!", Toast.LENGTH_SHORT).show()
+                                                onAuthSuccess(session.email, session.fullName, bName, reg)
+                                            }
+                                            is AuthResult.Error -> {
+                                                isGoogleLoading = false
+                                                if (result.errorCode != "USER_CANCELLED") {
+                                                    errorMessage = result.errorMessage
+                                                }
+                                            }
+                                            else -> {
+                                                isGoogleLoading = false
+                                            }
+                                        }
+                                    }
                                 },
+                                enabled = !isLoading && !isGoogleLoading,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFDADCE0)),
@@ -609,18 +677,26 @@ fun AuthModal(
                                     .height(48.dp)
                                     .testTag("auth_google_signup_btn")
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    GoogleLogoIcon(modifier = Modifier.size(20.dp))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Text(
-                                        text = "Continue with Google",
-                                        color = Color(0xFF3C4043),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold
+                                if (isGoogleLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        color = Color(0xFF4285F4),
+                                        strokeWidth = 2.dp
                                     )
+                                } else {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        GoogleLogoIcon(modifier = Modifier.size(20.dp))
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Text(
+                                            text = "Continue with Google",
+                                            color = Color(0xFF3C4043),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
                                 }
                             }
 

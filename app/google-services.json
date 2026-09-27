@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1035752112104",
+    "project_id": "growthengine-509916",
+    "storage_bucket": "growthengine-509916.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1035752112104:android:b20cb6032cb1f150a4ae5d",
+        "android_client_info": {
+          "package_name": "com.aistudio.growthengine.xbpmqt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1035752112104-a8oape3ggjid5igdb2n0eua1okf6pgb0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5UWsuCChjuZSYmvjvRSRVxXnlQZrvJOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1035752112104-a8oape3ggjid5igdb2n0eua1okf6pgb0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
