@@ -254,13 +254,3 @@ TO authenticated
 USING (bucket_id = 'backups')
 WITH CHECK (bucket_id = 'backups');
 
--- ==============================================================================
--- SEED DEFAULT BUSINESS (Safely with required email)
--- ==============================================================================
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM public.businesses LIMIT 1) THEN
-        INSERT INTO public.businesses (id, name, email)
-        VALUES ('a0000000-0000-0000-0000-000000000001', 'GrowthEngine Enterprise', 'prajindezaa142@gmail.com');
-    END IF;
-END $$;
