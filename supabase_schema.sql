@@ -255,15 +255,12 @@ USING (bucket_id = 'backups')
 WITH CHECK (bucket_id = 'backups');
 
 -- ==============================================================================
--- SEED DEFAULT BUSINESS (Safely with valid UUID)
+-- SEED DEFAULT BUSINESS (Safely with required email)
 -- ==============================================================================
-INSERT INTO public.businesses (id, name)
-VALUES ('a0000000-0000-0000-0000-000000000001', 'GrowthEngine Enterprise')
-ON CONFLICT (id) DO NOTHING;
-
-UPDATE public.businesses
-SET is_active = true,
-    plan_tier = 'ENTERPRISE_AI',
-    subscription_status = 'ACTIVE',
-    ai_monthly_token_quota = 2000000
-WHERE id = 'a0000000-0000-0000-0000-000000000001';
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM public.businesses LIMIT 1) THEN
+        INSERT INTO public.businesses (id, name, email)
+        VALUES ('a0000000-0000-0000-0000-000000000001', 'GrowthEngine Enterprise', 'prajindezaa142@gmail.com');
+    END IF;
+END $$;
